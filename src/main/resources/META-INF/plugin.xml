@@ -14,6 +14,15 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+
+            <projectConfigurable groupId="tools"
+                             displayName="HOPSWORKS SETTINGS"
+                             instance="com.logicalclocks.HopsworksConfigurable" />
+
+        <projectConfigurable groupId="tools"
+                             displayName="HOPSWORKS RUN JOB"
+                             instance="com.logicalclocks.JobsConfigurable" />
+
     </extensions>
 
     <actions>
@@ -25,5 +34,13 @@
                 <mouse-shortcut keystroke="control button3 doubleClick" keymap="$default"/>
                 <add-to-group group-id="ToolsMenu" anchor="first"/>
             </action>
+
+    <!--    <action id="hopsRun" class="com.logicalclocks.actions.HopsRunJob" text="Run on Hopsworks">
+            <add-to-group group-id="EditorPopupMenu.Run" anchor="last"/>
+        </action>-->
+        <action id="hopsRun2" class="com.logicalclocks.actions.HopsRunJob" text="Run on Hopsworks">
+            <add-to-group group-id="ProjectViewPopupMenuSettingsGroup" anchor="last"/>
+        </action>
     </actions>
+
 </idea-plugin>

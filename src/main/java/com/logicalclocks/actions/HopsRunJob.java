@@ -2,12 +2,15 @@ package com.logicalclocks.actions;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.newvfs.impl.VirtualFileImpl;
 import com.logicalclocks.HopsUtils;
-
 import io.hops.cli.action.FileUploadAction;
+import io.hops.cli.action.JobRunAction;
 import io.hops.cli.config.HopsworksAPIConfig;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -16,37 +19,42 @@ import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FileCopyDialogAction extends AnAction {
-
-
+public class HopsRunJob extends AnAction {
 
     @Override
     public void update(AnActionEvent e) {
         // Set the availability based on whether a project is open
         Project project = e.getProject();
         e.getPresentation().setEnabledAndVisible(project != null);
+
     }
 
     @Override
-    public void actionPerformed(@NotNull AnActionEvent e) {
-        // Using the event, implement an action. For example, create and show a dialog.
+    public void actionPerformed(AnActionEvent e) {
+        // TODO: insert action logic here
 
         HopsUtils util=new HopsUtils();
         Project proj=e.getProject();
 
+
         String hopsworksApiKey = util.getAPIKey(proj);
         String hopsworksUrl = util.getURL(proj);
         String projectName = util.getProjectName(proj);
+        String file=util.getLocalFile(proj);
+        String jobName=util.getJobName(proj);
+        String destination=util.getDestination(proj);
+
+        //String localFilePath = "file://"+file;
 
 
-        String localFilePath = "file:///C:/pom.xml";
-        String destDatasetPath = "/Resources";
+        String localFilePath =e.getDataContext().getData("virtualFile").toString();
 
-        Path currentRelativePath = Paths.get("");
+
+/*
+         Path currentRelativePath = Paths.get("");
         String s = currentRelativePath.toAbsolutePath().toString();
         System.out.println("Current relative path is: " + s);
-
-/*        ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu();
+        ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu();
         actionPopupMenu.setTargetComponent();
 
         FileChooserDescriptor fcd = new FileChooserDescriptor(true, false, true,
@@ -59,8 +67,10 @@ public class FileCopyDialogAction extends AnAction {
         try {
 
             HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig( hopsworksApiKey, hopsworksUrl, projectName);
-            FileUploadAction action = new FileUploadAction(hopsworksAPIConfig,destDatasetPath,  localFilePath);
+            FileUploadAction action = new FileUploadAction(hopsworksAPIConfig,destination,  localFilePath);
             action.execute();
+            JobRunAction runJob=new JobRunAction(hopsworksAPIConfig,jobName,"");
+            runJob.execute();
         } catch (IOException ex) {
             Logger.getLogger(FileCopyDialogAction.class.getName()).log(Level.SEVERE, null, ex);
         } catch (URISyntaxException ex) {
@@ -69,7 +79,5 @@ public class FileCopyDialogAction extends AnAction {
             Logger.getLogger(FileCopyDialogAction.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-
     }
-
 }
