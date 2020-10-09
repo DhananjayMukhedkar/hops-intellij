@@ -11,7 +11,7 @@ public class SampleDialogWrapper extends DialogWrapper {
     public SampleDialogWrapper() {
         super(true); // use current window as parent
         init();
-        setTitle("Test DialogWrapper");
+        setTitle("HopsCreateJob DialogWrapper");
     }
 
     @Nullable
