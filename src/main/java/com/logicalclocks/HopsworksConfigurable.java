@@ -6,6 +6,10 @@ import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.ui.popup.PopupFactoryImpl;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.logicalclocks.actions.FileCopyDialogAction;
@@ -13,6 +17,7 @@ import io.hops.cli.action.FileUploadAction;
 import io.hops.cli.action.JobRunAction;
 import io.hops.cli.config.HopsworksAPIConfig;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -24,23 +29,29 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+
 public class HopsworksConfigurable implements Configurable {
 
     private final Project project;
+    HopsUtils util=new HopsUtils();
     private  JTextField userKey = new JTextField();
     private JTextField userUrl = new JTextField();
     private JTextField userProject = new JTextField();
     private JTextField filePath = new JTextField();
     private JTextField jobName = new JTextField();
     private JTextField programPath = new JTextField();
+    private JTextField userArgs = new JTextField();
+    private JTextField mainClass = new JTextField();
 
 
-    private static final String PATH_URL = "hops.url";
-    private static final String PATH_KEY = "hops.key";
-    private static final String PATH_PROJECT = "hops.project";
-    private static final String PATH_FILE = "hops.file";
-    private static final String PATH_JOB = "hops.job";
-    private static final String PATH_PROGRAM = "hops.program";
+    private static final String PATH_URL = HopsUtils.PATH_URL;
+    private static final String PATH_KEY = HopsUtils.PATH_KEY;
+    private static final String PATH_PROJECT = HopsUtils.PATH_PROJECT;
+    private static final String PATH_FILE = HopsUtils.PATH_FILE;
+    private static final String PATH_JOB = HopsUtils.PATH_JOB;
+    private static final String PATH_PROGRAM = HopsUtils.PATH_PROGRAM;
+    private static final String PATH_USERARGS = HopsUtils.PATH_USERARGS;
+    private static final String PATH_MAINCLASS = HopsUtils.PATH_MAINCLASS;
 
 
     public static String storedUrl = null;
@@ -49,6 +60,8 @@ public class HopsworksConfigurable implements Configurable {
     public static String storedFile = null;
     public static String storedJob = null;
     public static String storedProgram = null;
+    public static String storedUserArgs = null;
+    public static String storedMainClass = null;
 
     public HopsworksConfigurable(Project project){
 
@@ -67,13 +80,14 @@ public class HopsworksConfigurable implements Configurable {
         storedFile = properties.getValue(PATH_FILE);
         storedJob = properties.getValue(PATH_JOB);
         storedProgram = properties.getValue(PATH_PROGRAM);
-
+        storedUserArgs=properties.getValue(PATH_USERARGS);
+        storedMainClass=properties.getValue(PATH_MAINCLASS);
     }
     
     
     @Override
     public @Nls(capitalization = Nls.Capitalization.Title) String getDisplayName() {
-        return "HOPS SETTINGS";
+        return "Hopsworks Settings";
     }
 
 
@@ -86,126 +100,73 @@ public class HopsworksConfigurable implements Configurable {
          filePath=new JTextField();
          jobName=new JTextField();
          programPath=new JTextField();
+         userArgs=new JTextField();
+         mainClass=new JTextField();
 
-        JPanel container = new JPanel(new GridLayoutManager(7, 2));
+        JPanel container = new JPanel(new GridLayoutManager(9, 2));
 
         //1
-        GridConstraints pathLabelConstraint0a = new GridConstraints();
-        pathLabelConstraint0a.setRow(0);
-        pathLabelConstraint0a.setColumn(0);
-        pathLabelConstraint0a.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathLabelConstraint0a.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(new JLabel("Hopsworks Project: "), pathLabelConstraint0a);
-
-        GridConstraints pathFieldConstraint0a = new GridConstraints();
-        pathFieldConstraint0a.setHSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW);
-        pathFieldConstraint0a.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathFieldConstraint0a.setAnchor(GridConstraints.ANCHOR_WEST);
-        pathFieldConstraint0a.setRow(0);
-        pathFieldConstraint0a.setColumn(1);
-        pathFieldConstraint0a.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(userProject, pathFieldConstraint0a);
+        container=createField(container,0,"Hopsworks Project: ",userProject);
         //2
-        GridConstraints pathLabelConstraint0b = new GridConstraints();
-        pathLabelConstraint0b.setRow(1);
-        pathLabelConstraint0b.setColumn(0);
-        pathLabelConstraint0b.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathLabelConstraint0b.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(new JLabel("Hopsworks URL: "), pathLabelConstraint0b);
-
-        GridConstraints pathFieldConstraint0b = new GridConstraints();
-        pathFieldConstraint0b.setHSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW);
-        pathFieldConstraint0b.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathFieldConstraint0b.setAnchor(GridConstraints.ANCHOR_WEST);
-        pathFieldConstraint0b.setRow(1);
-        pathFieldConstraint0b.setColumn(1);
-        pathFieldConstraint0b.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(userUrl, pathFieldConstraint0b);
-
+        container=createField(container,1,"Hopsworks URL: ",userUrl);
         //3
-        GridConstraints pathLabelConstraint0c = new GridConstraints();
-        pathLabelConstraint0c.setRow(2);
-        pathLabelConstraint0c.setColumn(0);
-        pathLabelConstraint0c.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathLabelConstraint0c.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(new JLabel("Hopsworks API Key: "), pathLabelConstraint0c);
-
-        GridConstraints pathFieldConstraint0c = new GridConstraints();
-        pathFieldConstraint0c.setHSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW);
-        pathFieldConstraint0c.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathFieldConstraint0c.setAnchor(GridConstraints.ANCHOR_WEST);
-        pathFieldConstraint0c.setRow(2);
-        pathFieldConstraint0c.setColumn(1);
-        pathFieldConstraint0c.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(userKey, pathFieldConstraint0c);
+        container=createField(container,2,"Hopsworks API Key: ",userKey);
         //4
-        GridConstraints pathLabelConstraint0d = new GridConstraints();
-        pathLabelConstraint0d.setRow(3);
-        pathLabelConstraint0d.setColumn(0);
-        pathLabelConstraint0d.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathLabelConstraint0d.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(new JLabel("Local file path: "), pathLabelConstraint0d);
-
-        GridConstraints pathFieldConstraint0d = new GridConstraints();
-        pathFieldConstraint0d.setHSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW);
-        pathFieldConstraint0d.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathFieldConstraint0d.setAnchor(GridConstraints.ANCHOR_WEST);
-        pathFieldConstraint0d.setRow(3);
-        pathFieldConstraint0d.setColumn(1);
-        pathFieldConstraint0d.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(filePath, pathFieldConstraint0d);
+        container=createField(container,3,"Local Path for Logs: ",filePath);
         //5
-        GridConstraints pathLabelConstraint0e = new GridConstraints();
-        pathLabelConstraint0e.setRow(4);
-        pathLabelConstraint0e.setColumn(0);
-        pathLabelConstraint0e.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathLabelConstraint0e.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(new JLabel("Hopsworks Job Name: "), pathLabelConstraint0e);
-
-        GridConstraints pathFieldConstraint0e = new GridConstraints();
-        pathFieldConstraint0e.setHSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW);
-        pathFieldConstraint0e.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathFieldConstraint0e.setAnchor(GridConstraints.ANCHOR_WEST);
-        pathFieldConstraint0e.setRow(4);
-        pathFieldConstraint0e.setColumn(1);
-        pathFieldConstraint0e.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(jobName, pathFieldConstraint0e);
+        container=createField(container,4,"Hopsworks Job Name: ",jobName);
         //6
-        GridConstraints pathLabelConstraint0f = new GridConstraints();
-        pathLabelConstraint0f.setRow(5);
-        pathLabelConstraint0f.setColumn(0);
-        pathLabelConstraint0f.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathLabelConstraint0f.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(new JLabel("HDFS destination path: "), pathLabelConstraint0f);
+        container=createField(container,5,"HDFS destination path: ",programPath);
+        //7
+        container=createField(container,6,"User args: ",userArgs);
+        //8
+        container=createField(container,7,"Main Class:",mainClass);
 
-        GridConstraints pathFieldConstraint0f = new GridConstraints();
-        pathFieldConstraint0f.setHSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW);
-        pathFieldConstraint0f.setFill(GridConstraints.FILL_HORIZONTAL);
-        pathFieldConstraint0f.setAnchor(GridConstraints.ANCHOR_WEST);
-        pathFieldConstraint0f.setRow(5);
-        pathFieldConstraint0f.setColumn(1);
-        pathFieldConstraint0f.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-        container.add(programPath, pathFieldConstraint0f);
 
         JPanel spacer = new JPanel();
         GridConstraints spacerConstraints = new GridConstraints();
-        spacerConstraints.setRow(6);
+        spacerConstraints.setRow(8);
         spacerConstraints.setFill(GridConstraints.FILL_BOTH);
         container.add(spacer, spacerConstraints);
+
+
+        return container;
+
+    }
+
+
+
+    private JPanel createField(JPanel container,int row,String label,JTextField field ){
+
+        if (container!=null){
+            GridConstraints pathLabelConstraint = new GridConstraints();
+            pathLabelConstraint.setRow(row);
+            pathLabelConstraint.setColumn(0);
+            pathLabelConstraint.setFill(GridConstraints.FILL_HORIZONTAL);
+            pathLabelConstraint.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
+            container.add(new JLabel(label), pathLabelConstraint);
+
+            GridConstraints pathFieldConstraint = new GridConstraints();
+            pathFieldConstraint.setHSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW);
+            pathFieldConstraint.setFill(GridConstraints.FILL_HORIZONTAL);
+            pathFieldConstraint.setAnchor(GridConstraints.ANCHOR_WEST);
+            pathFieldConstraint.setRow(row);
+            pathFieldConstraint.setColumn(1);
+            pathFieldConstraint.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
+            container.add(field, pathFieldConstraint);
+        }
         return container;
 
     }
 
     @Override
     public boolean isModified() {
-        if (userKey!=null || userProject !=null || userUrl!=null) {
-            return true;
-        }
+        // TODO: insert action logic here
+
+        return userKey != null || userProject != null || userUrl != null;
         // check for all other variables
 
         // check last value != current return true
-
-        return false;
     }
 
     @Override
@@ -218,6 +179,8 @@ public class HopsworksConfigurable implements Configurable {
         storedFile=filePath.getText().trim();
         storedJob=jobName.getText().trim();
         storedProgram=programPath.getText().trim();
+        storedUserArgs=userArgs.getText().trim();
+        storedMainClass=mainClass.getText().trim();
 
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         properties.setValue(PATH_URL, storedUrl);
@@ -226,27 +189,8 @@ public class HopsworksConfigurable implements Configurable {
         properties.setValue(PATH_FILE, storedFile);
         properties.setValue(PATH_JOB, storedJob);
         properties.setValue(PATH_PROGRAM, storedProgram);
-
-        //RUN
-/*        if (storedKey!=null && storedKey!=null && storedProject!=null) {
-            try {
-                String localFilePath = "file:///"+storedFile;
-
-                HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig(storedKey, storedUrl, storedProject);
-                FileUploadAction action = new FileUploadAction(hopsworksAPIConfig, storedProgram, localFilePath);
-                action.execute();
-                JobRunAction runJob=new JobRunAction(hopsworksAPIConfig,storedJob,"");
-                runJob.execute();
-            } catch (IOException ex) {
-                Logger.getLogger(FileCopyDialogAction.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (URISyntaxException ex) {
-                Logger.getLogger(FileCopyDialogAction.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (Exception ex) {
-                Logger.getLogger(FileCopyDialogAction.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }*/
-
-
+        properties.setValue(PATH_USERARGS, storedUserArgs);
+        properties.setValue(PATH_MAINCLASS, storedMainClass);
     }
 
     @Override
@@ -268,6 +212,12 @@ public class HopsworksConfigurable implements Configurable {
         }
         if (programPath != null) {
             programPath.setText(storedProgram);
+        }
+        if (userArgs != null) {
+            userArgs.setText(storedUserArgs);
+        }
+        if (mainClass != null) {
+            mainClass.setText(storedMainClass);
         }
     }
 

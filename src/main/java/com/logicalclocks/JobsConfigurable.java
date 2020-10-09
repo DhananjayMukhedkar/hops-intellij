@@ -25,7 +25,7 @@ public class JobsConfigurable implements Configurable {
     private final Project project;
     private  JTextField userFile = new JTextField();
     private JTextField userDestination = new JTextField();
-    private JTextField userProject = new JTextField();
+    private final JTextField userProject = new JTextField();
 
 
     private static final String PATH_URL = "hops.url";
@@ -125,13 +125,9 @@ public class JobsConfigurable implements Configurable {
 
     @Override
     public boolean isModified() {
-        if (userFile!=null ) {
-            return true;
-        }
+        return userFile != null;
 
         // check last value != current return true
-
-        return false;
     }
 
     @Override

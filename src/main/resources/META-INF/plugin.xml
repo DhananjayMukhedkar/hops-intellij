@@ -14,16 +14,13 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-
             <projectConfigurable groupId="tools"
-                             displayName="HOPSWORKS SETTINGS"
+                             displayName="Hopsworks Settings"
                              instance="com.logicalclocks.HopsworksConfigurable" />
 
-        <projectConfigurable groupId="tools"
-                             displayName="HOPSWORKS RUN JOB"
-                             instance="com.logicalclocks.JobsConfigurable" />
 
-    </extensions>
+
+     </extensions>
 
     <actions>
             <action id="com.logicalclocks.actions.FileCopyDialogAction"
@@ -38,8 +35,26 @@
     <!--    <action id="hopsRun" class="com.logicalclocks.actions.HopsRunJob" text="Run on Hopsworks">
             <add-to-group group-id="EditorPopupMenu.Run" anchor="last"/>
         </action>-->
-        <action id="hopsRun2" class="com.logicalclocks.actions.HopsRunJob" text="Run on Hopsworks">
-            <add-to-group group-id="ProjectViewPopupMenuSettingsGroup" anchor="last"/>
+
+        <action id="createJob" class="com.logicalclocks.actions.HopsCreateJob" text="Create Job on Hopsworks">
+            <add-to-group group-id="ProjectViewPopupMenuRunGroup" anchor="first" />
+        </action>
+        <action id="jobRun" class="com.logicalclocks.actions.HopsRunJob" text="Run Job on Hopsworks">
+            <add-to-group group-id="ProjectViewPopupMenuRunGroup" anchor="after" relative-to-action="createJob"/>
+        </action>
+        <action id="jobStop" class="com.logicalclocks.actions.HopsStopJob" text="Stop Job on Hopsworks">
+            <add-to-group group-id="ProjectViewPopupMenuRunGroup" anchor="after" relative-to-action="jobRun"/>
+        </action>
+        <action id="jobRemove" class="com.logicalclocks.actions.HopsRemoveJob" text="Remove Job from Hopsworks"
+                description="Deletes job from Hopsworks ">
+            <add-to-group group-id="ProjectViewPopupMenuRunGroup" anchor="after" relative-to-action="jobStop"/>
+        </action>
+
+        <action id="jobLogs" class="com.logicalclocks.actions.HopsJobLogs" text="Job Last Execution Logs">
+            <add-to-group group-id="ProjectViewPopupMenuRunGroup" anchor="after" relative-to-action="jobRemove"/>
+        </action>
+        <action id="jobStatus" class="com.logicalclocks.actions.HopsGetJobStatus" text="Job Last Execution Status">
+            <add-to-group group-id="ProjectViewPopupMenuRunGroup" anchor="after" relative-to-action="jobLogs"/>
         </action>
     </actions>
 
