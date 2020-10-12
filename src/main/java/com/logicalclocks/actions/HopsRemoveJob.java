@@ -26,31 +26,24 @@ public class HopsRemoveJob extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        // TODO: insert action logic here
 
             HopsUtils util=new HopsUtils();
             Project proj=e.getProject();
             String hopsworksApiKey = util.getAPIKey(proj);
             String hopsworksUrl = util.getURL(proj);
             String projectName = util.getProjectName(proj);
-            String file=util.getLocalFile(proj);
             String jobName=util.getJobName(proj);
-            String destination=util.getDestination(proj);
-            String userArgs=util.getUserArgs(proj);
-
-            String localFilePath =e.getDataContext().getData("virtualFile").toString();
 
             try {
                 HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig( hopsworksApiKey, hopsworksUrl, projectName);
-
                 JobRemoveAction rmJob = new JobRemoveAction(hopsworksAPIConfig, jobName);
                 int status=rmJob.execute();
                 PluginNoticifaction news=new PluginNoticifaction();
-                if (status == 200 || status == 201) {
-                   news.notify(e.getProject(),"Job "+jobName+": Deleted");
 
-                }
-                else news.notify(e.getProject(),"Job "+jobName+": Remove failed");
+                if (status == 200 || status == 201 || status == 202) {
+                   news.notify(e.getProject(),"Job :"+jobName+" | Deleted");
+                } else news.notify(e.getProject(),"Job :"+jobName+" | Remove failed");
+
             } catch (IOException ex) {
                 PluginNoticifaction.notify(e.getProject(),ex.getMessage());
                 Logger.getLogger(JobRemoveAction.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
@@ -58,7 +51,6 @@ public class HopsRemoveJob extends AnAction {
                 PluginNoticifaction.notify(e.getProject(),ex.getMessage());
                 Logger.getLogger(HopsRemoveJob.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }
-
 
     }
 }

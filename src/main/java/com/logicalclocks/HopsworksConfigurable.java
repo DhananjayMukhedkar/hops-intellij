@@ -1,33 +1,20 @@
 package com.logicalclocks;
 
-import com.intellij.ide.actions.ShowSettingsUtilImpl;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.ListPopup;
-import com.intellij.ui.popup.PopupFactoryImpl;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.logicalclocks.actions.FileCopyDialogAction;
-import io.hops.cli.action.FileUploadAction;
-import io.hops.cli.action.JobRunAction;
-import io.hops.cli.config.HopsworksAPIConfig;
 import org.jetbrains.annotations.Nls;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-import java.awt.*;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 
 public class HopsworksConfigurable implements Configurable {
@@ -37,12 +24,12 @@ public class HopsworksConfigurable implements Configurable {
     private  JTextField userKey = new JTextField();
     private JTextField userUrl = new JTextField();
     private JTextField userProject = new JTextField();
-    private JTextField filePath = new JTextField();
+    private JTextField logFilePath = new JTextField();
     private JTextField jobName = new JTextField();
     private JTextField programPath = new JTextField();
     private JTextField userArgs = new JTextField();
     private JTextField mainClass = new JTextField();
-
+    private JTextField execId = new JTextField();
 
     private static final String PATH_URL = HopsUtils.PATH_URL;
     private static final String PATH_KEY = HopsUtils.PATH_KEY;
@@ -52,6 +39,8 @@ public class HopsworksConfigurable implements Configurable {
     private static final String PATH_PROGRAM = HopsUtils.PATH_PROGRAM;
     private static final String PATH_USERARGS = HopsUtils.PATH_USERARGS;
     private static final String PATH_MAINCLASS = HopsUtils.PATH_MAINCLASS;
+    private static final String PATH_EXECID = HopsUtils.PATH_EXECID;
+
 
 
     public static String storedUrl = null;
@@ -62,6 +51,7 @@ public class HopsworksConfigurable implements Configurable {
     public static String storedProgram = null;
     public static String storedUserArgs = null;
     public static String storedMainClass = null;
+    public static String storedExecId = null;
 
     public HopsworksConfigurable(Project project){
 
@@ -82,6 +72,7 @@ public class HopsworksConfigurable implements Configurable {
         storedProgram = properties.getValue(PATH_PROGRAM);
         storedUserArgs=properties.getValue(PATH_USERARGS);
         storedMainClass=properties.getValue(PATH_MAINCLASS);
+        storedExecId=properties.getValue(PATH_EXECID);
     }
     
     
@@ -97,22 +88,43 @@ public class HopsworksConfigurable implements Configurable {
          userKey = new JTextField();
          userUrl = new JTextField();
          userProject = new JTextField();
-         filePath=new JTextField();
+         logFilePath =new JTextField();
          jobName=new JTextField();
          programPath=new JTextField();
          userArgs=new JTextField();
          mainClass=new JTextField();
+         execId=new JTextField();
 
-        JPanel container = new JPanel(new GridLayoutManager(9, 2));
+
+        HashMap<String,JTextField> map=new HashMap<String,JTextField>();
+        map.put("Hopsworks Project: ",userProject);
+        map.put("Hopsworks URL: ",userUrl);
+        map.put("Hopsworks API Key: ",userKey);
+        map.put("Local Path for Logs: ", logFilePath);
+        map.put("Hopsworks Job Name: ",jobName);
+        map.put("HDFS destination path: ",programPath);
+        map.put("User args: ",userArgs);
+        map.put("Main Class: ",mainClass);
+        map.put("Execution Id: ",execId);
+
+        JPanel container = new JPanel(new GridLayoutManager(map.size()+1, 2));
+        Set<Map.Entry<String, JTextField>> e = map.entrySet();
+        Iterator<Map.Entry<String, JTextField>> it = e.iterator();
+        int i=0;
+        while(it.hasNext()){
+            Map.Entry<String, JTextField> pair = it.next();
+            container=createField(container,i,pair.getKey(),pair.getValue());
+            i++;
+        }
 
         //1
-        container=createField(container,0,"Hopsworks Project: ",userProject);
+/*        container=createField(container,0,"Hopsworks Project: ",userProject);
         //2
         container=createField(container,1,"Hopsworks URL: ",userUrl);
         //3
         container=createField(container,2,"Hopsworks API Key: ",userKey);
         //4
-        container=createField(container,3,"Local Path for Logs: ",filePath);
+        container=createField(container,3,"Local Path for Logs: ", logFilePath);
         //5
         container=createField(container,4,"Hopsworks Job Name: ",jobName);
         //6
@@ -120,12 +132,11 @@ public class HopsworksConfigurable implements Configurable {
         //7
         container=createField(container,6,"User args: ",userArgs);
         //8
-        container=createField(container,7,"Main Class:",mainClass);
-
+        container=createField(container,7,"Main Class:",mainClass);*/
 
         JPanel spacer = new JPanel();
         GridConstraints spacerConstraints = new GridConstraints();
-        spacerConstraints.setRow(8);
+        spacerConstraints.setRow(i);
         spacerConstraints.setFill(GridConstraints.FILL_BOTH);
         container.add(spacer, spacerConstraints);
 
@@ -176,11 +187,12 @@ public class HopsworksConfigurable implements Configurable {
         storedUrl = userUrl.getText().trim();
         storedKey = userKey.getText().trim();
         storedProject= userProject.getText().trim();
-        storedFile=filePath.getText().trim();
+        storedFile= logFilePath.getText().trim();
         storedJob=jobName.getText().trim();
         storedProgram=programPath.getText().trim();
         storedUserArgs=userArgs.getText().trim();
         storedMainClass=mainClass.getText().trim();
+        storedExecId=execId.getText().trim();
 
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         properties.setValue(PATH_URL, storedUrl);
@@ -191,6 +203,7 @@ public class HopsworksConfigurable implements Configurable {
         properties.setValue(PATH_PROGRAM, storedProgram);
         properties.setValue(PATH_USERARGS, storedUserArgs);
         properties.setValue(PATH_MAINCLASS, storedMainClass);
+        properties.setValue(PATH_EXECID, storedExecId);
     }
 
     @Override
@@ -204,8 +217,8 @@ public class HopsworksConfigurable implements Configurable {
         if (userProject != null) {
             userProject.setText(storedProject);
         }
-        if (filePath != null) {
-            filePath.setText(storedFile);
+        if (logFilePath != null) {
+            logFilePath.setText(storedFile);
         }
         if (jobName != null) {
             jobName.setText(storedJob);
@@ -218,6 +231,9 @@ public class HopsworksConfigurable implements Configurable {
         }
         if (mainClass != null) {
             mainClass.setText(storedMainClass);
+        }
+        if (execId != null) {
+            execId.setText(storedExecId);
         }
     }
 

@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.logicalclocks.HopsUtils;
 
+import com.sun.xml.bind.v2.TODO;
 import io.hops.cli.action.FileUploadAction;
 
 import io.hops.cli.config.HopsworksAPIConfig;
@@ -33,24 +34,20 @@ public class HopsCreateJob extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        // TODO: insert action logic here
-
+        // TODO : Check File Separator hardcoding
         HopsUtils util=new HopsUtils();
         Project proj=e.getProject();
         String hopsworksApiKey = util.getAPIKey(proj);
         String hopsworksUrl = util.getURL(proj);
         String projectName = util.getProjectName(proj);
-        String file=util.getLocalFile(proj);
         String jobName=util.getJobName(proj);
         String destination=util.getDestination(proj);
-        String userArgs=util.getUserArgs(proj);
         String mainClass=util.getUserMainClass(proj);
-
         String localFilePath =e.getDataContext().getData("virtualFile").toString();
 
         File f = new File(localFilePath);
         System.out.println(f.getName());
-        String finalPath=destination+'/'+f.getName();
+        String finalPath=destination+'/'+f.getName(); // Check File Separator hardcoding
         System.out.println(finalPath);
         String jobType=util.getJobType(f.getName());
         System.out.println(jobType);
@@ -59,7 +56,6 @@ public class HopsCreateJob extends AnAction {
 
         try {
             HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig( hopsworksApiKey, hopsworksUrl, projectName);
-
             //upload program
             FileUploadAction action = new FileUploadAction(hopsworksAPIConfig,destination,  localFilePath);
             action.execute();
@@ -82,8 +78,8 @@ public class HopsCreateJob extends AnAction {
             int status =createJob.execute();
             PluginNoticifaction news=new PluginNoticifaction();
             if (status == 200 || status == 201) {
-                 news.notify(e.getProject()," Job "+jobName+": Created");
-            } else news.notify(e.getProject()," Job "+jobName+": Creation Failed");
+                 news.notify(e.getProject()," Job :"+jobName+" | Created");
+            } else news.notify(e.getProject()," Job :"+jobName+" | Creation Failed");
         } catch (IOException ex) {
             PluginNoticifaction.notify(e.getProject(),ex.getMessage());
             Logger.getLogger(JobCreateAction.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);

@@ -3,6 +3,7 @@ package com.logicalclocks.actions;
 //import com.logicalclocks.actions.HopsworksAction;
 import com.logicalclocks.actions.HopsworksAction;
 import io.hops.cli.config.HopsworksAPIConfig;
+import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.CloseableHttpClient;
 
@@ -154,11 +155,14 @@ public abstract class JobAction extends HopsworksAction {
 
     }
 
-    protected String[] getLatestExecutionStatus() throws IOException {
-        // First get the most recent execution for this job. Then get the log/path for that execution.
+/*    protected String[] getExecutionStatus(Integer execId) throws IOException {
+        // get execution status by id;get last execution if execId IS NULL
         String[] statusArr=new String[2];
         CloseableHttpClient client = getClient();
-        HttpGet request = getJobGet("/executions?sort_by=appId:desc&limit=1");
+        HttpGet request;
+        if(execId!=null){
+            request = getJobGet("/executions/"+execId.toString());
+        }else request = getJobGet("/executions?sort_by=appId:desc&limit=1");
 
         CloseableHttpResponse response = client.execute(request);
         int status = readJsonRepoonse(response);
@@ -169,12 +173,62 @@ public abstract class JobAction extends HopsworksAction {
             }
             throw new IOException("Could not get latest execution: " + status);
         }
-        JsonArray array = this.getJsonResult().getJsonArray("items");
-        statusArr[0]=array.get(0).asJsonObject().get("state").toString();
-        statusArr[1]=array.get(0).asJsonObject().get("finalStatus").toString();
+        if(execId==null){ // if list
+            JsonArray array = this.getJsonResult().getJsonArray("items");
+            if(array!=null){
+                statusArr[0]=array.get(0).asJsonObject().get("state").toString();
+                statusArr[1]=array.get(0).asJsonObject().get("finalStatus").toString();
+            }
+        }else {
+            statusArr[0]=this.getJsonResult().getString("state");
+            statusArr[1]=this.getJsonResult().getString("finalStatus");
+        }
+
         client.close();
         response.close();
         return statusArr;
+    }*/
+
+    protected String[] getExecutionStatus(Integer execId) throws IOException {
+        // get execution status by id;get last execution if execId IS NULL
+        String[] statusArr=new String[2];
+        CloseableHttpClient client = getClient();
+        HttpGet request;
+        if(execId==null){
+            int excId = getLatestExecution();
+
+            JsonArray array = this.getJsonResult().getJsonArray("items");
+            if(array!=null){
+                statusArr[0]=array.get(0).asJsonObject().get("state").toString();
+                statusArr[1]=array.get(0).asJsonObject().get("finalStatus").toString();
+            }
+        }else {
+            getExecutionById(execId);
+            statusArr[0]=this.getJsonResult().getString("state");
+            statusArr[1]=this.getJsonResult().getString("finalStatus");
+        }
+
+        return statusArr;
+    }
+
+    protected void getExecutionById(Integer execId) throws IOException {
+        CloseableHttpClient client = getClient();
+        HttpGet request = getJobGet("/executions/"+execId.toString());
+
+        CloseableHttpResponse response = client.execute(request);
+        int status = readJsonRepoonse(response);
+        if (status != 200 && status != 201) {
+            client.close();
+            if (response != null) {
+                response.close();
+            }
+            throw new IOException("Could not get execution id: " + execId +" ; Status :"+status);
+        }
+
+        client.close();
+        response.close();
+
+
     }
 
 

@@ -50,10 +50,10 @@
             <add-to-group group-id="ProjectViewPopupMenuRunGroup" anchor="after" relative-to-action="jobStop"/>
         </action>
 
-        <action id="jobLogs" class="com.logicalclocks.actions.HopsJobLogs" text="Job Last Execution Logs">
+        <action id="jobLogs" class="com.logicalclocks.actions.HopsJobLogs" text="Job Execution Logs">
             <add-to-group group-id="ProjectViewPopupMenuRunGroup" anchor="after" relative-to-action="jobRemove"/>
         </action>
-        <action id="jobStatus" class="com.logicalclocks.actions.HopsGetJobStatus" text="Job Last Execution Status">
+        <action id="jobStatus" class="com.logicalclocks.actions.HopsJobStatus" text="Job Execution Status">
             <add-to-group group-id="ProjectViewPopupMenuRunGroup" anchor="after" relative-to-action="jobLogs"/>
         </action>
     </actions>

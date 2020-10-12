@@ -16,6 +16,7 @@ public class HopsUtils {
     public static final String PATH_PROGRAM = "hops.program";
     public static final String PATH_USERARGS = "hops.userAgrs";
     public static final String PATH_MAINCLASS = "hops.mainClass";
+    public static final String PATH_EXECID = "hops.executionId";
     public static final String PYTHON_CONFIG="pythonJobConfiguration";
     public static final String SPARK_CONFIG="sparkJobConfiguration";
 
@@ -78,6 +79,13 @@ public class HopsUtils {
     public String getUserMainClass(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_MAINCLASS);
+
+    }
+
+
+    public String getUserExecId(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_EXECID);
 
     }
 

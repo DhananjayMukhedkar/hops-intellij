@@ -32,43 +32,36 @@ public class HopsJobLogs extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         // TODO: insert action logic here
-
+        // TODO: Caused by: org.apache.spark.SparkException: Exception thrown in awaitResult:
         HopsUtils util=new HopsUtils();
         Project proj=e.getProject();
-
         String hopsworksApiKey = util.getAPIKey(proj);
         String hopsworksUrl = util.getURL(proj);
         String projectName = util.getProjectName(proj);
         String localPathLogs=util.getLocalFile(proj);
         String jobName=util.getJobName(proj);
-        String destination=util.getDestination(proj);
-        String userArgs=util.getUserArgs(proj);
-
-        String localFilePath =e.getDataContext().getData("virtualFile").toString();
+        String userExecId=util.getUserExecId(proj);
 
         try {
+
             HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig( hopsworksApiKey, hopsworksUrl, projectName);
+            JobLogsAction logsJob;
+            if(userExecId!="" || userExecId!=null){
+                logsJob = new JobLogsAction(hopsworksAPIConfig, jobName, userExecId);
+            }else logsJob  = new JobLogsAction(hopsworksAPIConfig, jobName);
 
-            JobLogsAction logsJob = new JobLogsAction(hopsworksAPIConfig, jobName);
             int status=logsJob.execute();
-            //PluginNoticifaction news=new PluginNoticifaction();
             if (status == 200 || status == 201) {
-                String stdOut = logsJob.getStdOut();
-                String pathStdOut = logsJob.getPathToStdOut();
-                String stdErr = logsJob.getStdErr();
-                String pathStdErr=logsJob.getPathToStdErr();
-                int execId = logsJob.getExecutionId();
-                String localLogPath=localPathLogs;//"C:"+ File.separator+"hopsworks_projects";
-                StringBuilder sb=new StringBuilder(jobName).append("_")
-                        .append(String.valueOf(execId)).append("_stdOut.log");
-                StringBuilder sb2=new StringBuilder(jobName).append("_")
-                        .append(String.valueOf(execId)).append("_stdErr.log");
+                StringBuilder sb=new StringBuilder(jobName).append("_id").append(logsJob.getExecutionId()).append("_stdOut.log");
+                StringBuilder sb2=new StringBuilder(jobName).append("_id").append(logsJob.getExecutionId()).append("_stdErr.log");
+                //write logs
+                writeFile(localPathLogs,sb.toString(),logsJob.getStdOut());
+                writeFile(localPathLogs,sb2.toString(),logsJob.getStdErr());
+                //notify
+                StringBuilder sb3=new StringBuilder().append(" Job :").append(jobName).append(" ; Execution Id :").append(logsJob.getExecutionId()).append(" | Logs downloaded");
+                PluginNoticifaction.notify(e.getProject(),sb3.toString());
+            } else PluginNoticifaction.notify(e.getProject()," Job :"+jobName+" | Get Logs Failed");
 
-                writeFile(localLogPath,sb.toString(),stdOut);
-                writeFile(localLogPath,sb2.toString(),stdErr);
-
-                PluginNoticifaction.notify(e.getProject()," Job "+jobName+": Logs downloaded");
-            } else PluginNoticifaction.notify(e.getProject()," Job "+jobName+": Get Logs Failed");
         } catch (IOException ex) {
             PluginNoticifaction.notify(e.getProject(),ex.getMessage());
             Logger.getLogger(JobLogsAction.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
@@ -84,8 +77,7 @@ public class HopsJobLogs extends AnAction {
 
     public void writeFile (String logPath,String filename,String content) throws IOException{
         File out=new File(logPath,filename);
-        BufferedWriter bw = null;
-        bw = new BufferedWriter(new FileWriter(out));
+        BufferedWriter bw=new BufferedWriter(new FileWriter(out));
         bw.write(content);
         bw.close();
     }

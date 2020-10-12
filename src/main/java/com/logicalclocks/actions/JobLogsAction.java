@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import java.io.IOException;
+import java.util.logging.Level;
 
 public class JobLogsAction extends JobAction {
     private static final Logger logger = LoggerFactory.getLogger(JobLogsAction.class);
@@ -34,11 +35,24 @@ public class JobLogsAction extends JobAction {
         this.isGetStdout = isGetStdout;
     }
 
+    //added
+    public JobLogsAction(HopsworksAPIConfig hopsworksAPIConfig, String jobName,String execId) {
+        super(hopsworksAPIConfig, jobName);
+        try{
+            this.executionId=Integer.parseInt(execId);
+        } catch (NumberFormatException ex){
+            logger.error("Not a valid number for execution Id="+execId +" | Skipped");
+        }
+    }
+
     @Override
     public int execute() throws Exception {
         int status = 200;
-        this.executionId = getLatestExecution();
-//            "id/log/out|err"
+        if(this.executionId==0){
+            this.executionId = getLatestExecution();
+    //            "id/log/out|err"
+        }
+
         CloseableHttpClient logsClient = getClient();
         if (isGetStdout) {
             HttpGet logsRequest = getJobGet("/executions/" + this.executionId + "/log/out");
