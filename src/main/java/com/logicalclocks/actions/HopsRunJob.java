@@ -51,7 +51,7 @@ public class HopsRunJob extends AnAction {
         try {
 
             HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig( hopsworksApiKey, hopsworksUrl, projectName);
-            //upload app first
+            //upload app first?
             //FileUploadAction action = new FileUploadAction(hopsworksAPIConfig,destination,localFilePath);
             //action.execute();
             //execute run job

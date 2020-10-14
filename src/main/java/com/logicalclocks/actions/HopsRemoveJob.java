@@ -39,10 +39,12 @@ public class HopsRemoveJob extends AnAction {
                 JobRemoveAction rmJob = new JobRemoveAction(hopsworksAPIConfig, jobName);
                 int status=rmJob.execute();
                 PluginNoticifaction news=new PluginNoticifaction();
+                news.notify(e.getProject(),"Job :"+jobName+" | Deleted");
 
-                if (status == 200 || status == 201 || status == 202) {
+
+              /*  if (status == 200 || status == 201 || status == 202) {
                    news.notify(e.getProject(),"Job :"+jobName+" | Deleted");
-                } else news.notify(e.getProject(),"Job :"+jobName+" | Remove failed");
+                } else news.notify(e.getProject(),"Job :"+jobName+" | Remove failed");*/
 
             } catch (IOException ex) {
                 PluginNoticifaction.notify(e.getProject(),ex.getMessage());

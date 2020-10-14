@@ -11,10 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class HopsworksConfigurable implements Configurable {
@@ -96,16 +93,17 @@ public class HopsworksConfigurable implements Configurable {
          execId=new JTextField();
 
 
-        HashMap<String,JTextField> map=new HashMap<String,JTextField>();
+        LinkedHashMap<String,JTextField> map=new LinkedHashMap<String,JTextField>();
         map.put("Hopsworks Project: ",userProject);
         map.put("Hopsworks URL: ",userUrl);
         map.put("Hopsworks API Key: ",userKey);
-        map.put("Local Path for Logs: ", logFilePath);
-        map.put("Hopsworks Job Name: ",jobName);
+        map.put("Job Name: ",jobName);
         map.put("HDFS destination path: ",programPath);
         map.put("User args: ",userArgs);
         map.put("Main Class: ",mainClass);
+        map.put("Local Path for Logs: ", logFilePath);
         map.put("Execution Id: ",execId);
+
 
         JPanel container = new JPanel(new GridLayoutManager(map.size()+1, 2));
         Set<Map.Entry<String, JTextField>> e = map.entrySet();
