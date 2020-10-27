@@ -43,16 +43,20 @@ public class HopsCreateJob extends AnAction {
         String jobName=util.getJobName(proj);
         String destination=util.getDestination(proj);
         String mainClass=util.getUserMainClass(proj);
+        String userArgs=util.getUserArgs(proj);
         String localFilePath =e.getDataContext().getData("virtualFile").toString();
 
         File f = new File(localFilePath);
-        System.out.println(f.getName());
+
         String finalPath=destination+'/'+f.getName(); // Check File Separator hardcoding
+
+        //String jobType=util.getJobType(f.getName());
+        String jobType=util.getUserJobType(e.getProject());
+        System.out.println(f.getName());
         System.out.println(finalPath);
-        String jobType=util.getJobType(f.getName());
         System.out.println(jobType);
-        String configType=util.getJobConfigType(jobType);
-        System.out.println(configType);
+        //String configType=util.getJobConfigType(jobType);
+        //System.out.println(configType);
 
         try {
             HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig( hopsworksApiKey, hopsworksUrl, projectName);
@@ -71,6 +75,7 @@ public class HopsCreateJob extends AnAction {
             args.setMainClass(mainClass); //set user provides,overridden by inspect job config
             args.setAppPath(finalPath); //full app path
             args.setJobType(jobType);  // spark/pyspark/python
+            args.setCommandArgs(userArgs.trim());
             //args.setConfigType(configType); // removed as set by inspect job config
 
             // create job

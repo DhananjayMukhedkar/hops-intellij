@@ -2,8 +2,11 @@ package com.logicalclocks;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
+import net.minidev.json.JSONObject;
 import org.apache.commons.io.FilenameUtils;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import java.util.HashMap;
 
 public class HopsUtils {
@@ -17,14 +20,22 @@ public class HopsUtils {
     public static final String PATH_USERARGS = "hops.userAgrs";
     public static final String PATH_MAINCLASS = "hops.mainClass";
     public static final String PATH_EXECID = "hops.executionId";
-    public static final String PYTHON_CONFIG="pythonJobConfiguration";
-    public static final String SPARK_CONFIG="sparkJobConfiguration";
+    public static final String PATH_JOBTYPE="hops.jobType";
+    public static final String PATH_ADDFILE = "hops.additionalFiles";
+    public static final String PATH_PYTHON_DEPEND = "hops.pythonDependency";
+    public static final String PATH_ARCHIVE = "hops.archive";
+    public static final String PATH_ADDJAR = "hops.addJar";
+    public static final String PATH_MORE_PROP = "hops.moreProp";
 
     public static final String SPARK="SPARK";
     public static final String PYSPARK="PYSPARK";
     public static final String FLINK="FLINK";
     public static final String PYTHON="PYTHON";
     public static final String PYTHON_MAIN="org.apache.spark.deploy.PythonRunner";
+    public static final String PYTHON_CONFIG="pythonJobConfiguration";
+    public static final String SPARK_CONFIG="sparkJobConfiguration";
+
+
 
 
     private final HashMap<String,Integer> jobTypeCode=new HashMap<String,Integer>();
@@ -89,7 +100,14 @@ public class HopsUtils {
 
     }
 
+    public String getUserJobType(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_JOBTYPE);
+
+    }
+
     public String getJobType(String fileName){
+
         String ext= FilenameUtils.getExtension(fileName);
         Integer c=jobTypeCode.get(ext);
 
@@ -120,6 +138,9 @@ public class HopsUtils {
                 return SPARK_CONFIG;
         }
     }
+
+
+
 
 
 }

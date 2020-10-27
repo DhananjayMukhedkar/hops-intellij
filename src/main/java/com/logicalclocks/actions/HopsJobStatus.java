@@ -40,7 +40,7 @@ public class HopsJobStatus extends AnAction {
             if(run==0){
                 String[] arr=jobStatus.getJobStatusArr();
 
-                StringBuilder sb=new StringBuilder("Job :").append(jobName).append(" ;Execution Id :").append(jobStatus.getExecutionId()).append(" State: ").append(arr[0]).append( "| Final Status: ").append(arr[1]);
+                StringBuilder sb=new StringBuilder("Job :").append(jobName).append(" | Execution Id :").append(jobStatus.getExecutionId()).append(" State: ").append(arr[0]).append( "| Final Status: ").append(arr[1]);
                 PluginNoticifaction.notify(e.getProject(),sb.toString());
             }else PluginNoticifaction.notify(e.getProject(),"Failed to get job status");
 

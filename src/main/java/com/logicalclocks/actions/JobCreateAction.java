@@ -2,6 +2,7 @@ package com.logicalclocks.actions;
 
 import com.logicalclocks.HopsUtils;
 import io.hops.cli.config.HopsworksAPIConfig;
+import net.minidev.json.JSONObject;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
@@ -188,18 +189,18 @@ public class JobCreateAction extends JobAction {
 
   public JobCreateAction(HopsworksAPIConfig hopsworksAPIConfig, String jobName, Args args) throws IOException {
     super(hopsworksAPIConfig, jobName);
-    //hard coding TO DO
-    //create job config object
-    //JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
-    //objectBuilder= createConfigObj(objectBuilder,args,jobName);
-    //this.payload = objectBuilder.build();
-
-    String path=args.getAppPath().split("hdfs://")[1];
-    // get job config from inspect API
-    payload = getJobConfig(args.getJobType(),path,args.getMainClass(),args.getAppPath());
 
     this.hopsworksAPIConfig=hopsworksAPIConfig;
     this.jobName=jobName;
+    String path=args.getAppPath().split("hdfs://")[1];
+
+    if(args.getJobType()==HopsUtils.SPARK )// get job config from inspect API if SPARK
+      payload = getJobConfig(args.getJobType(),path,args.getMainClass(),args.getAppPath());
+    else if (args.getJobType()==HopsUtils.PYTHON)
+      payload = getPythonJobConfig(args);
+    else payload=getFlinkJobConfig();
+
+
 
   }
 
@@ -229,7 +230,6 @@ public class JobCreateAction extends JobAction {
 
   private JsonObject getJobConfig(String jobType,String programPath,String mainClass,String appPath) throws IOException {
     //inspect job config
-
     JsonObject respConfig = inspectJobConfig(jobType.toLowerCase(), programPath);
 
     JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
@@ -242,9 +242,42 @@ public class JobCreateAction extends JobAction {
     if(!respConfig.containsKey("mainClass")) { // if no main class add from user input
       objectBuilder.add("mainClass", mainClass);
     }
+
+
     return objectBuilder.build();
   }
 
+
+  public JsonObject getFlinkJobConfig(){
+
+    JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+    objectBuilder.add("type", "flinkJobConfiguration")
+            .add("amQueue", "default")
+            .add("jobmanager.heap.size",1024)
+            .add("amVCores", 1)
+            .add("numberOfTaskManagers",1)
+            .add("taskmanager.heap.size",1024)
+            .add("taskmanager.numberOfTaskSlots",1)
+            .add("appName",jobName);
+            //.add("localResources","");
+
+    return objectBuilder.build();
+
+  }
+
+  public JsonObject getPythonJobConfig(Args args){
+
+    JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+    objectBuilder.add("type", "pythonJobConfiguration")
+            .add("appName",jobName)
+            .add("memory",2028)
+            .add("jobType","PYTHON")
+            .add("appPath",args.getAppPath())
+            .add("defaultArgs",args.getCommandArgs());
+    //.add("localResources","");b
+    return objectBuilder.build();
+
+  }
 
   
   @Override
@@ -266,7 +299,6 @@ public class JobCreateAction extends JobAction {
     CloseableHttpResponse response = getClient.execute(request);
     int status = readJsonRepoonse(response);
     response.close();
-
 
     return status;
   }
