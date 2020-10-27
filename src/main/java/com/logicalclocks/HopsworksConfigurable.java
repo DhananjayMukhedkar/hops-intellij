@@ -4,31 +4,24 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
-
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
 
+import static com.logicalclocks.HopsUtils.*;
+
 
 public class HopsworksConfigurable implements Configurable {
 
-    private static final String ARCHIVES_LBL = "Archives :";
-    private static final String JARS_LBL = "Jars :";
-    private static final String FILES_LBL = "Files :";
-    private static final String PYTHON_LBL = "Python :";
-    private static final String MORE_PROP_LBL = "More Properties :";
-    private static final String HDFS_LBL = "HDFS destination path: ";
-    private static final String USER_ARGS_LBL = "User Arguments: " ;
-    private static final String MAIN_CLASS_LBL ="Main Class: ";
+
+    private static int MAX_LAYOUT ;
     private final Project project;
-    HopsUtils util=new HopsUtils();
+
     private  JTextField userKey = new JTextField();
     private JTextField userUrl = new JTextField();
     private JTextField userProject = new JTextField();
@@ -43,9 +36,20 @@ public class HopsworksConfigurable implements Configurable {
     private JTextField additionalJars = new JTextField();
     private JTextField pythonDepend  = new JTextField();
     private JTextField moreProps  = new JTextField();
+    private JTextField driverMem  = new JTextField();
+    private JTextField executorMem  = new JTextField();
+    private JTextField execVC  = new JTextField();
+    private JTextField driverVC  = new JTextField();
+    private JTextField numExecutor  = new JTextField();
+    private JTextField memory  = new JTextField();
+    private JTextField cpuCore  = new JTextField();
+    private JTextField jobManagerMem  = new JTextField();
+    private JTextField jNumTaskManager  = new JTextField();
+    private JTextField taskManagerMem  = new JTextField();
+    private JTextField numSlots  = new JTextField();
 
 
-    private static final String PATH_URL = HopsUtils.PATH_URL;
+/*    private static final String PATH_URL = HopsUtils.PATH_URL;
     private static final String PATH_KEY = HopsUtils.PATH_KEY;
     private static final String PATH_PROJECT = HopsUtils.PATH_PROJECT;
     private static final String PATH_FILE = HopsUtils.PATH_FILE;
@@ -59,7 +63,8 @@ public class HopsworksConfigurable implements Configurable {
     private static final String PATH_ADDJAR = HopsUtils.PATH_ADDJAR;
     private static final String PATH_ARCHIVE = HopsUtils.PATH_ARCHIVE;
     private static final String PATH_PYTHON_DEPEND = HopsUtils.PATH_PYTHON_DEPEND;
-    private static final String PATH_MORE_PROP = HopsUtils.PATH_MORE_PROP;
+    private static final String PATH_MORE_PROP = HopsUtils.PATH_MORE_PROP;*/
+
 
 
     private static String storedUrl = null;
@@ -80,16 +85,24 @@ public class HopsworksConfigurable implements Configurable {
 
 
     private JPanel inputPanel = null;
+    private JPanel additionalInputPanel = null;
     private JPanel advanceInputPanel = null;
     private JPanel superPanel = null;
+    private JPanel jobConfigPanel = null;
 
     ButtonGroup group = new ButtonGroup();
     JRadioButton sparkBtn = new JRadioButton();
     JRadioButton flinkBtn = new JRadioButton();
     JRadioButton pythonBtn = new JRadioButton();
     JCheckBox advanceBtn = new JCheckBox();
+    LinkedHashMap<String,JTextField> constantFieldsMap=new LinkedHashMap<String,JTextField>();
     LinkedHashMap<String,JTextField> advanceFieldmap=new LinkedHashMap<String,JTextField>();
+    LinkedHashMap<String,JTextField> sparkConfigMap =new LinkedHashMap<String,JTextField>();
+    LinkedHashMap<String,JTextField> flinkConfigMap =new LinkedHashMap<String,JTextField>();
+    LinkedHashMap<String,JTextField> pythonConfigMap=new LinkedHashMap<String,JTextField>();
+    LinkedHashMap<String,JTextField> sparkAddInputs=new LinkedHashMap<String,JTextField>();
 
+    LinkedHashMap<String,JTextField> pythonAddInputs=new LinkedHashMap<String,JTextField>();
 
     public HopsworksConfigurable(Project project){
 
@@ -102,19 +115,69 @@ public class HopsworksConfigurable implements Configurable {
 
     private static void loadProperties(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
-        storedUrl = properties.getValue(PATH_URL);
-        storedKey = properties.getValue(PATH_KEY);
-        storedProject = properties.getValue(PATH_PROJECT);
-        storedFile = properties.getValue(PATH_FILE);
-        storedJob = properties.getValue(PATH_JOB);
-        storedProgram = properties.getValue(PATH_PROGRAM);
-        storedUserArgs=properties.getValue(PATH_USERARGS);
-        storedMainClass=properties.getValue(PATH_MAINCLASS);
-        storedExecId=properties.getValue(PATH_EXECID);
+        storedUrl = properties.getValue(HopsUtils.PATH_URL);
+        storedKey = properties.getValue(HopsUtils.PATH_KEY);
+        storedProject = properties.getValue(HopsUtils.PATH_PROJECT);
+        storedFile = properties.getValue(HopsUtils.PATH_FILE);
+        storedJob = properties.getValue(HopsUtils.PATH_JOB);
+        storedProgram = properties.getValue(HopsUtils.PATH_PROGRAM);
+        storedUserArgs=properties.getValue(HopsUtils.PATH_USERARGS);
+        storedMainClass=properties.getValue(HopsUtils.PATH_MAINCLASS);
+        storedExecId=properties.getValue(HopsUtils.PATH_EXECID);
         //jobType=properties.getValue(PATH_JOBTYPE);
     }
     
-    
+    public void initPanelMaps(){
+
+        //main input panel
+        constantFieldsMap.put("Hopsworks Project: ",userProject);
+        constantFieldsMap.put("Hopsworks URL: ",userUrl);
+        constantFieldsMap.put("Hopsworks API Key: ",userKey);
+        constantFieldsMap.put("Job Name: ",jobName);
+        constantFieldsMap.put("Local Path for Logs: ", logFilePath);
+        constantFieldsMap.put("Execution Id: ",execId);
+        /*constantFieldsMap.put(HopsUtils.HDFS_LBL,hdfsPath);
+        constantFieldsMap.put(HopsUtils.USER_ARGS_LBL,userArgs);
+        constantFieldsMap.put(HopsUtils.MAIN_CLASS_LBL,mainClass);*/
+
+        sparkAddInputs.put(HopsUtils.HDFS_LBL,hdfsPath);
+        sparkAddInputs.put(HopsUtils.USER_ARGS_LBL,userArgs);
+        sparkAddInputs.put(HopsUtils.MAIN_CLASS_LBL,mainClass);
+
+        pythonAddInputs.put(HopsUtils.HDFS_LBL,hdfsPath);
+        pythonAddInputs.put(HopsUtils.USER_ARGS_LBL,userArgs);
+
+
+
+
+
+        // spark configs
+        sparkConfigMap.put(HopsUtils.DRIVER_MEM_LBL,driverMem);
+        sparkConfigMap.put(HopsUtils.EXECUTOR_MEM_LBL,executorMem);
+        sparkConfigMap.put(HopsUtils.EXEC_VC_LBL,execVC);
+        sparkConfigMap.put(HopsUtils.DRIVER_VC_LBL,driverVC);
+        sparkConfigMap.put(HopsUtils.NUM_EXEC_LBL,numExecutor);
+
+        // python configs
+        pythonConfigMap.put(HopsUtils.MEMORY_LBL,memory);
+        pythonConfigMap.put(HopsUtils.CPU_LBL,cpuCore);
+
+        // flink configs
+        flinkConfigMap.put(HopsUtils.JOB_MANAGER_MM_LBL,jobManagerMem);
+        flinkConfigMap.put(HopsUtils.JNUM_TASK_LBL,jNumTaskManager);
+        flinkConfigMap.put(HopsUtils.TASK_MANAGER_MM_LBL,taskManagerMem);
+        flinkConfigMap.put(HopsUtils.NUM_SLOT_LBL,numSlots);
+
+        //initiliase advance panel
+        advanceFieldmap.put(HopsUtils.ARCHIVES_LBL,archives);
+        advanceFieldmap.put(HopsUtils.JARS_LBL,additionalJars);
+        advanceFieldmap.put(HopsUtils.PYTHON_LBL,pythonDepend);
+        advanceFieldmap.put(HopsUtils.FILES_LBL,additionalFiles);
+        advanceFieldmap.put(HopsUtils.MORE_PROP_LBL,moreProps);
+
+    }
+
+
     @Override
     public @Nls(capitalization = Nls.Capitalization.Title) String getDisplayName() {
         return "Hopsworks Settings";
@@ -134,30 +197,27 @@ public class HopsworksConfigurable implements Configurable {
          mainClass=new JTextField();
          execId=new JTextField();*/
 
-        LinkedHashMap<String,JTextField> constantFieldsMap=new LinkedHashMap<String,JTextField>();
-        constantFieldsMap.put("Hopsworks Project: ",userProject);
-        constantFieldsMap.put("Hopsworks URL: ",userUrl);
-        constantFieldsMap.put("Hopsworks API Key: ",userKey);
-        constantFieldsMap.put("Job Name: ",jobName);
-        constantFieldsMap.put("Local Path for Logs: ", logFilePath);
-        constantFieldsMap.put("Execution Id: ",execId);
+
+        initPanelMaps();
+
 
 
         //add input text field panel
-        inputPanel = new JPanel(new GridLayoutManager(constantFieldsMap.size()+4, 2));
-        Set<Map.Entry<String, JTextField>> e = constantFieldsMap.entrySet();
+        GridLayoutManager layout = new GridLayoutManager(constantFieldsMap.size() + 1, 2);
+        layout.setVGap(1);
+        inputPanel = new JPanel(layout);
+    /*    Set<Map.Entry<String, JTextField>> e = constantFieldsMap.entrySet();
         Iterator<Map.Entry<String, JTextField>> it = e.iterator();
         int i=0;
         while(it.hasNext()){
             Map.Entry<String, JTextField> pair = it.next();
             inputPanel=createField(inputPanel,i,pair.getKey(),pair.getValue());
             i++;
-        }
-        JPanel spacer = new JPanel();
-        GridConstraints spacerConstraints = new GridConstraints();
-        spacerConstraints.setRow(i);
-        spacerConstraints.setFill(GridConstraints.FILL_BOTH);
-        inputPanel.add(spacer, spacerConstraints);
+        }*/
+
+        inputPanel=HopsUtils.createInputPanel(inputPanel,constantFieldsMap);
+
+        MAX_LAYOUT=inputPanel.getComponents().length;
 
         //radio buttons
         sparkBtn.setText("SPARK");
@@ -184,7 +244,7 @@ public class HopsworksConfigurable implements Configurable {
         pythonBtn.addActionListener(pythonAction);
 
         // advanced config panels
-        int num_fields=4;
+
 
 
         //advanceInputPanel=createInputPanelFiels(advanceInputPanel,advanceFieldmap);
@@ -195,57 +255,59 @@ public class HopsworksConfigurable implements Configurable {
         }*/
 
 
+
+
+        GridLayoutManager layout3 = new GridLayoutManager(sparkConfigMap.size() + 1, 2);
+        layout3.setVGap(1);
+        jobConfigPanel =new JPanel(layout3);
+        jobConfigPanel =HopsUtils.createInputPanel(jobConfigPanel, sparkConfigMap);
+
+
+        GridLayoutManager layout2=new GridLayoutManager(advanceFieldmap.size()+1, 2);
+        layout2.setVGap(1);
+        advanceInputPanel=new JPanel(layout2);
+
+        //add checkbox button
         JPanel buttonPanel2=new JPanel();
         buttonPanel2.setLayout(new BoxLayout(buttonPanel2,BoxLayout.X_AXIS));
-
         advanceBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         advanceBtn.setText("Advance Configurations");
         advanceBtn.setSelected(false);
         advanceBtn.addActionListener(advanceAction);
         buttonPanel2.add(advanceBtn);
+        GridLayoutManager layout4 = null;
+        if(jobType==null || jobType==SPARK)
+         layout4 = new GridLayoutManager(sparkAddInputs.size() + 1, 2);
+        else if (jobType==PYTHON)
+            layout4 = new GridLayoutManager(pythonAddInputs.size() + 1, 2);
+
+
+
+        layout4.setVGap(1);
+        additionalInputPanel = new JPanel(layout4);
+
+        additionalInputPanel=createInputPanel(additionalInputPanel,sparkAddInputs);
+
 
         //add all panels
         superPanel = new JPanel();
         superPanel.setLayout(new BoxLayout(superPanel,BoxLayout.Y_AXIS));
         superPanel.add(buttonPanel);
         superPanel.add(inputPanel);
-        superPanel.add(buttonPanel2);
-        //initiliase advance panel
-        advanceFieldmap.put(ARCHIVES_LBL,archives);
-        advanceFieldmap.put(JARS_LBL,additionalJars);
-        advanceFieldmap.put(PYTHON_LBL,pythonDepend);
-        advanceFieldmap.put(FILES_LBL,additionalFiles);
-        advanceFieldmap.put(MORE_PROP_LBL,moreProps);
-        //
 
-        advanceInputPanel=new JPanel(new GridLayoutManager(advanceFieldmap.size()+1, 2));
+        superPanel.add(additionalInputPanel);
+
+        superPanel.add(jobConfigPanel);
+        superPanel.add(buttonPanel2);
         superPanel.add(advanceInputPanel);
+
+
 
         return superPanel;
 
     }
 
-    private JPanel createInputPanelFiels(JPanel panel, LinkedHashMap<String, JTextField> map) {
 
-        Set<Map.Entry<String, JTextField>> e2 = map.entrySet();
-        Iterator<Map.Entry<String, JTextField>> it2 = e2.iterator();
-        int j=0;
-        while(it2.hasNext()){
-            Map.Entry<String, JTextField> pair = it2.next();
-            panel=createField(panel,j,pair.getKey(),pair.getValue());
-            j++;
-        }
-
-        JPanel spacer = new JPanel();
-        GridConstraints spacerConstraints = new GridConstraints();
-        spacerConstraints.setRow(j);
-        spacerConstraints.setFill(GridConstraints.FILL_BOTH);
-        panel.add(spacer, spacerConstraints);
-
-        return panel;
-
-
-    }
 
     /*
     add each  button listners
@@ -256,21 +318,22 @@ public class HopsworksConfigurable implements Configurable {
         public void actionPerformed(ActionEvent e) {
             if(e.getSource()==flinkBtn){
                 //labels
-                HopsworksConfigurable.this.inputPanel.remove(8);
-                HopsworksConfigurable.this.inputPanel.repaint();
-                HopsworksConfigurable.this.inputPanel.remove(8);
-                HopsworksConfigurable.this.inputPanel.repaint();
-                HopsworksConfigurable.this.inputPanel.remove(8);
-                HopsworksConfigurable.this.inputPanel.repaint();
-                HopsworksConfigurable.this.inputPanel.remove(8);
-                HopsworksConfigurable.this.inputPanel.repaint();
-                HopsworksConfigurable.this.inputPanel.remove(8);
-                HopsworksConfigurable.this.inputPanel.repaint();
-                HopsworksConfigurable.this.inputPanel.remove(8);
-                HopsworksConfigurable.this.inputPanel.repaint();
+                int l=HopsworksConfigurable.this.inputPanel.getComponents().length;
+                additionalInputPanel.removeAll();
+           /*     if(l==MAX_LAYOUT) {
+                    HopsworksConfigurable.this.inputPanel.remove(12);
+                    HopsworksConfigurable.this.inputPanel.remove(12);
+                    HopsworksConfigurable.this.inputPanel.remove(12);
+                    HopsworksConfigurable.this.inputPanel.remove(12);
+                    HopsworksConfigurable.this.inputPanel.remove(12);
+                    HopsworksConfigurable.this.inputPanel.remove(12);
+                }else{
+                    HopsworksConfigurable.this.inputPanel.remove(12);
+                    HopsworksConfigurable.this.inputPanel.remove(12);
+                    HopsworksConfigurable.this.inputPanel.remove(12);
+                    HopsworksConfigurable.this.inputPanel.remove(12);
 
-
-
+                }*/
                 /*HopsworksConfigurable.this.inputPanel.getComponent(8).setEnabled(false);
                 HopsworksConfigurable.this.inputPanel.getComponent(10).setEnabled(false);
                 HopsworksConfigurable.this.inputPanel.getComponent(12).setEnabled(false);
@@ -278,7 +341,11 @@ public class HopsworksConfigurable implements Configurable {
                 HopsworksConfigurable.this.inputPanel.getComponent(9).setEnabled(false);
                 HopsworksConfigurable.this.inputPanel.getComponent(11).setEnabled(false);
                 HopsworksConfigurable.this.inputPanel.getComponent(13).setEnabled(false);*/
+                //HopsworksConfigurable.this.inputPanel.repaint();
 
+                jobConfigPanel.removeAll();
+                jobConfigPanel=createInputPanel(jobConfigPanel,flinkConfigMap);
+                advanceBtn.setSelected(false);
             }
         }
     };
@@ -295,10 +362,23 @@ public class HopsworksConfigurable implements Configurable {
                 HopsworksConfigurable.this.inputPanel.getComponent(8).setEnabled(true);
                 HopsworksConfigurable.this.inputPanel.getComponent(10).setEnabled(true);
                 HopsworksConfigurable.this.inputPanel.getComponent(12).setEnabled(true);*/
+                int l=HopsworksConfigurable.this.inputPanel.getComponents().length;
+        /*        if(l==MAX_LAYOUT-6){
+                    inputPanel=createField(inputPanel,6,HopsUtils.HDFS_LBL,hdfsPath);
+                    inputPanel=createField(inputPanel,7, HopsUtils.USER_ARGS_LBL,userArgs);
+                    inputPanel=createField(inputPanel,8,HopsUtils.MAIN_CLASS_LBL,mainClass);
+                }else {
+                    inputPanel=createField(inputPanel,8,HopsUtils.MAIN_CLASS_LBL,mainClass);
 
-                inputPanel=createField(inputPanel,6,HDFS_LBL,hdfsPath);
-                inputPanel=createField(inputPanel,7, USER_ARGS_LBL,userArgs);
-                inputPanel=createField(inputPanel,8,MAIN_CLASS_LBL,mainClass);
+                }*/
+
+
+                additionalInputPanel.removeAll();
+                additionalInputPanel=createInputPanel(additionalInputPanel,sparkAddInputs);
+
+                jobConfigPanel.removeAll();
+                jobConfigPanel=createInputPanel(jobConfigPanel, sparkConfigMap);
+                advanceBtn.setSelected(false);
 
             }
         }
@@ -316,15 +396,26 @@ public class HopsworksConfigurable implements Configurable {
                 HopsworksConfigurable.this.inputPanel.getComponent(13).setEnabled(false);*/
 
                 //remove fields
+                int l=inputPanel.getComponents().length;
+              /*  if(l==MAX_LAYOUT){// if all components exists
+                    inputPanel.remove(16);//field
+                    inputPanel.remove(16);//label
+
+                }else {//
+                    inputPanel=createField(inputPanel,6,HopsUtils.HDFS_LBL,hdfsPath);
+                    inputPanel=createField(inputPanel,7, HopsUtils.USER_ARGS_LBL,userArgs);
+
+                }*/
+                additionalInputPanel.removeAll();
+
+                additionalInputPanel=createInputPanel(additionalInputPanel,pythonAddInputs);
+
+                jobConfigPanel.removeAll();
+                jobConfigPanel=createInputPanel(jobConfigPanel,pythonConfigMap);
+                advanceBtn.setSelected(false);
 
 
-
-
-
-
-
-
-
+                //HopsworksConfigurable.this.inputPanel.repaint();
 
             }
         }
@@ -337,7 +428,7 @@ public class HopsworksConfigurable implements Configurable {
                 if(advanceBtn.isSelected()){
                     advanceInputPanel.removeAll();
                     if(sparkBtn.isSelected()){
-                        advanceInputPanel=createInputPanelFiels(advanceInputPanel,advanceFieldmap);
+                        advanceInputPanel=HopsUtils.createInputPanel(advanceInputPanel,advanceFieldmap);
 //                        Component[] allComps = advanceInputPanel.getComponents();
 //                        for (Component c: allComps) {
 //                            c.setEnabled(true);
@@ -345,11 +436,11 @@ public class HopsworksConfigurable implements Configurable {
                     }else if (pythonBtn.isSelected()){
                         /*HopsworksConfigurable.this.advanceInputPanel.getComponent(6).setEnabled(true);
                         HopsworksConfigurable.this.advanceInputPanel.getComponent(7).setEnabled(true);*/
-                        advanceInputPanel=createField(advanceInputPanel,0,FILES_LBL,advanceFieldmap.get(FILES_LBL));
+                        advanceInputPanel=createField(advanceInputPanel,0,HopsUtils.FILES_LBL,advanceFieldmap.get(HopsUtils.FILES_LBL));
                     }else if (flinkBtn.isSelected()){
                      /*   HopsworksConfigurable.this.advanceInputPanel.getComponent(8).setEnabled(true);
                         HopsworksConfigurable.this.advanceInputPanel.getComponent(9).setEnabled(true);*/
-                        advanceInputPanel=createField(advanceInputPanel,0,MORE_PROP_LBL,advanceFieldmap.get(MORE_PROP_LBL));
+                        advanceInputPanel=createField(advanceInputPanel,0,HopsUtils.MORE_PROP_LBL,advanceFieldmap.get(HopsUtils.MORE_PROP_LBL));
                     }
                 } else { //check box disable
                  /*   Component[] allComps = advanceInputPanel.getComponents();
@@ -368,28 +459,7 @@ public class HopsworksConfigurable implements Configurable {
 
 
 
-    private JPanel createField(JPanel container,int row,String label,JTextField field ){
 
-        if (container!=null){
-            GridConstraints pathLabelConstraint = new GridConstraints();
-            pathLabelConstraint.setRow(row);
-            pathLabelConstraint.setColumn(0);
-            pathLabelConstraint.setFill(GridConstraints.FILL_HORIZONTAL);
-            pathLabelConstraint.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-            container.add(new JLabel(label), pathLabelConstraint);
-
-            GridConstraints pathFieldConstraint = new GridConstraints();
-            pathFieldConstraint.setHSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW);
-            pathFieldConstraint.setFill(GridConstraints.FILL_HORIZONTAL);
-            pathFieldConstraint.setAnchor(GridConstraints.ANCHOR_WEST);
-            pathFieldConstraint.setRow(row);
-            pathFieldConstraint.setColumn(1);
-            pathFieldConstraint.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-            container.add(field, pathFieldConstraint);
-        }
-        return container;
-
-    }
 
     @Override
     public boolean isModified() {
@@ -419,16 +489,16 @@ public class HopsworksConfigurable implements Configurable {
         else  jobType= flinkBtn.getText();
 
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
-        properties.setValue(PATH_URL, storedUrl);
-        properties.setValue(PATH_KEY, storedKey);
-        properties.setValue(PATH_PROJECT, storedProject);
-        properties.setValue(PATH_FILE, storedFile);
-        properties.setValue(PATH_JOB, storedJob);
-        properties.setValue(PATH_PROGRAM, storedProgram);
-        properties.setValue(PATH_USERARGS, storedUserArgs);
-        properties.setValue(PATH_MAINCLASS, storedMainClass);
-        properties.setValue(PATH_EXECID, storedExecId);
-        properties.setValue(PATH_JOBTYPE,jobType);
+        properties.setValue(HopsUtils.PATH_URL, storedUrl);
+        properties.setValue(HopsUtils.PATH_KEY, storedKey);
+        properties.setValue(HopsUtils.PATH_PROJECT, storedProject);
+        properties.setValue(HopsUtils.PATH_FILE, storedFile);
+        properties.setValue(HopsUtils.PATH_JOB, storedJob);
+        properties.setValue(HopsUtils.PATH_PROGRAM, storedProgram);
+        properties.setValue(HopsUtils.PATH_USERARGS, storedUserArgs);
+        properties.setValue(HopsUtils.PATH_MAINCLASS, storedMainClass);
+        properties.setValue(HopsUtils.PATH_EXECID, storedExecId);
+        properties.setValue(HopsUtils.PATH_JOBTYPE,jobType);
 
 
     }
