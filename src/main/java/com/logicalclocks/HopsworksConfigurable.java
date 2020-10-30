@@ -31,22 +31,26 @@ public class HopsworksConfigurable implements Configurable {
     private JTextField userArgs = new JTextField();
     private JTextField mainClass = new JTextField();
     private JTextField execId = new JTextField();
+    //advance config
     private JTextField additionalFiles = new JTextField();
     private JTextField archives = new JTextField();
     private JTextField additionalJars = new JTextField();
     private JTextField pythonDepend  = new JTextField();
     private JTextField moreProps  = new JTextField();
-    private JTextField driverMem  = new JTextField();
-    private JTextField executorMem  = new JTextField();
-    private JTextField execVC  = new JTextField();
-    private JTextField driverVC  = new JTextField();
-    private JTextField numExecutor  = new JTextField();
-    private JTextField memory  = new JTextField();
-    private JTextField cpuCore  = new JTextField();
-    private JTextField jobManagerMem  = new JTextField();
-    private JTextField jNumTaskManager  = new JTextField();
-    private JTextField taskManagerMem  = new JTextField();
-    private JTextField numSlots  = new JTextField();
+    //job config params
+    private JTextField driverMem  = new JTextField("2048");
+    private JTextField executorMem  = new JTextField("4096");
+    private JTextField execVC  = new JTextField("1");
+    private JTextField driverVC  = new JTextField("1");
+    private JTextField numExecutor  = new JTextField("1");
+    //python configs
+    private JTextField memory  = new JTextField("2028");
+    private JTextField cpuCore  = new JTextField("1");
+    //flink configs
+    private JTextField jobManagerMem  = new JTextField("1024");
+    private JTextField numTaskManager = new JTextField("1");
+    private JTextField taskManagerMem  = new JTextField("1024");
+    private JTextField numSlots  = new JTextField("1");
 
 
 /*    private static final String PATH_URL = HopsUtils.PATH_URL;
@@ -65,8 +69,6 @@ public class HopsworksConfigurable implements Configurable {
     private static final String PATH_PYTHON_DEPEND = HopsUtils.PATH_PYTHON_DEPEND;
     private static final String PATH_MORE_PROP = HopsUtils.PATH_MORE_PROP;*/
 
-
-
     private static String storedUrl = null;
     private static String storedKey = null;
     private static String storedProject = null;
@@ -76,13 +78,29 @@ public class HopsworksConfigurable implements Configurable {
     private static String storedUserArgs = null;
     private static String storedMainClass = null;
     private static String storedExecId = null;
-    private static String jobType=null;
+    private static String storedJobType =null;
+    //advance configs
     private static String storedAddFile=null;
     private static String storedAddJar=null;
     private static String storedPythonDepend=null;
     private static String storedArchive=null;
     private static String storedMoreProp=null;
+    private static boolean isAdvancedConfig=false;
 
+    //spark job config params
+    private static String stored_spDriverMem=null;
+    private static String stored_spExecMem=null;
+    private static String stored_spExecVC=null;
+    private static String stored_spDriverVC=null;
+    private static String stored_spNumExec=null;
+    //python job config params
+    private static String stored_pyMemory=null;
+    private static String stored_pyCpuCore=null;
+    //flink job config params
+    private static String stored_flJobManMem=null;
+    private static String stored_flNumTaskMan =null;
+    private static String stored_flTaskManMem=null;
+    private static String stored_flNumSlots=null;
 
     private JPanel inputPanel = null;
     private JPanel additionalInputPanel = null;
@@ -101,16 +119,13 @@ public class HopsworksConfigurable implements Configurable {
     LinkedHashMap<String,JTextField> flinkConfigMap =new LinkedHashMap<String,JTextField>();
     LinkedHashMap<String,JTextField> pythonConfigMap=new LinkedHashMap<String,JTextField>();
     LinkedHashMap<String,JTextField> sparkAddInputs=new LinkedHashMap<String,JTextField>();
-
     LinkedHashMap<String,JTextField> pythonAddInputs=new LinkedHashMap<String,JTextField>();
 
     public HopsworksConfigurable(Project project){
-
         this.project = project;
         if(project!=null){
             loadProperties(project);
         }
-
     }
 
     private static void loadProperties(Project project){
@@ -124,7 +139,30 @@ public class HopsworksConfigurable implements Configurable {
         storedUserArgs=properties.getValue(HopsUtils.PATH_USERARGS);
         storedMainClass=properties.getValue(HopsUtils.PATH_MAINCLASS);
         storedExecId=properties.getValue(HopsUtils.PATH_EXECID);
-        //jobType=properties.getValue(PATH_JOBTYPE);
+        storedJobType =properties.getValue(PATH_JOBTYPE);
+        //spark configs
+        stored_spDriverMem=properties.getValue(PATH_SP_DRVERMEM);
+        stored_spNumExec=properties.getValue(PATH_SP_NUM_EXEC);
+        stored_spExecVC=properties.getValue(PATH_SP_EXEC_VC);
+        stored_spDriverVC=properties.getValue(PATH_SP_DRIVER_VC);
+        stored_spExecMem =properties.getValue(PATH_SP_EXECMEM);
+
+        //python
+        stored_pyMemory=properties.getValue(PATH_PY_MEMORY);
+        stored_pyCpuCore=properties.getValue(PATH_PY_CPU_CORE);
+        //flink
+        stored_flTaskManMem=properties.getValue(PATH_FL_TASK_MANAGER_MEM);
+        stored_flNumSlots=properties.getValue(PATH_FL_NUM_SLOTS);
+        stored_flJobManMem=properties.getValue(PATH_FL_JOB_MANAGER_MEM);
+        stored_flNumTaskMan=properties.getValue(PATH_FL_NUM_TASK_MANGER);
+        //advance
+        storedAddFile=properties.getValue(PATH_ADDFILE);
+        storedAddJar=properties.getValue(PATH_ADDJAR);
+        storedPythonDepend=properties.getValue(PATH_PYTHON_DEPEND);
+        storedMoreProp=properties.getValue(PATH_MORE_PROP);
+        storedArchive=properties.getValue(PATH_ARCHIVE);
+        isAdvancedConfig=properties.getBoolean(PATH_IS_ADVANCED);
+
     }
     
     public void initPanelMaps(){
@@ -146,28 +184,20 @@ public class HopsworksConfigurable implements Configurable {
 
         pythonAddInputs.put(HopsUtils.HDFS_LBL,hdfsPath);
         pythonAddInputs.put(HopsUtils.USER_ARGS_LBL,userArgs);
-
-
-
-
-
         // spark configs
         sparkConfigMap.put(HopsUtils.DRIVER_MEM_LBL,driverMem);
         sparkConfigMap.put(HopsUtils.EXECUTOR_MEM_LBL,executorMem);
         sparkConfigMap.put(HopsUtils.EXEC_VC_LBL,execVC);
         sparkConfigMap.put(HopsUtils.DRIVER_VC_LBL,driverVC);
         sparkConfigMap.put(HopsUtils.NUM_EXEC_LBL,numExecutor);
-
         // python configs
         pythonConfigMap.put(HopsUtils.MEMORY_LBL,memory);
         pythonConfigMap.put(HopsUtils.CPU_LBL,cpuCore);
-
         // flink configs
         flinkConfigMap.put(HopsUtils.JOB_MANAGER_MM_LBL,jobManagerMem);
-        flinkConfigMap.put(HopsUtils.JNUM_TASK_LBL,jNumTaskManager);
+        flinkConfigMap.put(HopsUtils.NUM_TASK_LBL, numTaskManager);
         flinkConfigMap.put(HopsUtils.TASK_MANAGER_MM_LBL,taskManagerMem);
         flinkConfigMap.put(HopsUtils.NUM_SLOT_LBL,numSlots);
-
         //initiliase advance panel
         advanceFieldmap.put(HopsUtils.ARCHIVES_LBL,archives);
         advanceFieldmap.put(HopsUtils.JARS_LBL,additionalJars);
@@ -182,8 +212,6 @@ public class HopsworksConfigurable implements Configurable {
     public @Nls(capitalization = Nls.Capitalization.Title) String getDisplayName() {
         return "Hopsworks Settings";
     }
-
-
 
     @Override
     public @Nullable JComponent createComponent() {
@@ -200,12 +228,13 @@ public class HopsworksConfigurable implements Configurable {
 
         initPanelMaps();
 
-
-
-        //add input text field panel
+        //add primary input text field panel
         GridLayoutManager layout = new GridLayoutManager(constantFieldsMap.size() + 1, 2);
         layout.setVGap(1);
         inputPanel = new JPanel(layout);
+        inputPanel=HopsUtils.createInputPanel(inputPanel,constantFieldsMap);
+        MAX_LAYOUT=inputPanel.getComponents().length;
+
     /*    Set<Map.Entry<String, JTextField>> e = constantFieldsMap.entrySet();
         Iterator<Map.Entry<String, JTextField>> it = e.iterator();
         int i=0;
@@ -215,9 +244,7 @@ public class HopsworksConfigurable implements Configurable {
             i++;
         }*/
 
-        inputPanel=HopsUtils.createInputPanel(inputPanel,constantFieldsMap);
 
-        MAX_LAYOUT=inputPanel.getComponents().length;
 
         //radio buttons
         sparkBtn.setText("SPARK");
@@ -244,9 +271,6 @@ public class HopsworksConfigurable implements Configurable {
         pythonBtn.addActionListener(pythonAction);
 
         // advanced config panels
-
-
-
         //advanceInputPanel=createInputPanelFiels(advanceInputPanel,advanceFieldmap);
    /*     Component[] allComps = advanceInputPanel.getComponents();
         for (Component c:
@@ -254,15 +278,15 @@ public class HopsworksConfigurable implements Configurable {
             c.setEnabled(false);
         }*/
 
-
-
-
+        //additional input fields panel
+        GridLayoutManager lAdd2 = new GridLayoutManager(sparkAddInputs.size() + 1, 2);
+        lAdd2.setVGap(1);
+        additionalInputPanel = new JPanel(lAdd2);
+        //job config parameters panel
         GridLayoutManager layout3 = new GridLayoutManager(sparkConfigMap.size() + 1, 2);
         layout3.setVGap(1);
         jobConfigPanel =new JPanel(layout3);
-        jobConfigPanel =HopsUtils.createInputPanel(jobConfigPanel, sparkConfigMap);
-
-
+        //advance config panel
         GridLayoutManager layout2=new GridLayoutManager(advanceFieldmap.size()+1, 2);
         layout2.setVGap(1);
         advanceInputPanel=new JPanel(layout2);
@@ -271,42 +295,39 @@ public class HopsworksConfigurable implements Configurable {
         JPanel buttonPanel2=new JPanel();
         buttonPanel2.setLayout(new BoxLayout(buttonPanel2,BoxLayout.X_AXIS));
         advanceBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
-        advanceBtn.setText("Advance Configurations");
-        advanceBtn.setSelected(false);
+        advanceBtn.setText(HopsUtils.ADVANCED_LBL);
+
+        if(isAdvancedConfig) advanceBtn.setSelected(true);
+        else advanceBtn.setSelected(false);
+
         advanceBtn.addActionListener(advanceAction);
         buttonPanel2.add(advanceBtn);
-        GridLayoutManager layout4 = null;
-        if(jobType==null || jobType==SPARK)
-         layout4 = new GridLayoutManager(sparkAddInputs.size() + 1, 2);
-        else if (jobType==PYTHON)
-            layout4 = new GridLayoutManager(pythonAddInputs.size() + 1, 2);
 
 
-
-        layout4.setVGap(1);
-        additionalInputPanel = new JPanel(layout4);
-
-        additionalInputPanel=createInputPanel(additionalInputPanel,sparkAddInputs);
-
+        if(storedJobType ==null || storedJobType.equals(HopsUtils.SPARK)){
+            additionalInputPanel=createInputPanel(additionalInputPanel,sparkAddInputs);
+            jobConfigPanel =HopsUtils.createInputPanel(jobConfigPanel, sparkConfigMap);
+        } else if (storedJobType.equals(HopsUtils.PYTHON)){
+            additionalInputPanel=createInputPanel(additionalInputPanel,pythonAddInputs);
+            jobConfigPanel =HopsUtils.createInputPanel(jobConfigPanel, pythonConfigMap);
+        } else {
+            additionalInputPanel=createInputPanel(additionalInputPanel,new LinkedHashMap<>());
+            jobConfigPanel =HopsUtils.createInputPanel(jobConfigPanel, flinkConfigMap);
+        }
 
         //add all panels
         superPanel = new JPanel();
         superPanel.setLayout(new BoxLayout(superPanel,BoxLayout.Y_AXIS));
-        superPanel.add(buttonPanel);
-        superPanel.add(inputPanel);
-
-        superPanel.add(additionalInputPanel);
-
-        superPanel.add(jobConfigPanel);
-        superPanel.add(buttonPanel2);
-        superPanel.add(advanceInputPanel);
-
-
+        superPanel.add(buttonPanel); //job type buttons
+        superPanel.add(inputPanel); // primary input fields
+        superPanel.add(additionalInputPanel); // job config specific inputs 2nd panel
+        superPanel.add(jobConfigPanel); // job config parameters 3rd panel
+        superPanel.add(buttonPanel2); // checkbox
+        superPanel.add(advanceInputPanel); // advance configs
 
         return superPanel;
 
     }
-
 
 
     /*
@@ -375,11 +396,9 @@ public class HopsworksConfigurable implements Configurable {
 
                 additionalInputPanel.removeAll();
                 additionalInputPanel=createInputPanel(additionalInputPanel,sparkAddInputs);
-
                 jobConfigPanel.removeAll();
                 jobConfigPanel=createInputPanel(jobConfigPanel, sparkConfigMap);
                 advanceBtn.setSelected(false);
-
             }
         }
     };
@@ -396,8 +415,10 @@ public class HopsworksConfigurable implements Configurable {
                 HopsworksConfigurable.this.inputPanel.getComponent(13).setEnabled(false);*/
 
                 //remove fields
-                int l=inputPanel.getComponents().length;
-              /*  if(l==MAX_LAYOUT){// if all components exists
+
+              /*
+              int l=inputPanel.getComponents().length;
+              if(l==MAX_LAYOUT){// if all components exists
                     inputPanel.remove(16);//field
                     inputPanel.remove(16);//label
 
@@ -407,16 +428,12 @@ public class HopsworksConfigurable implements Configurable {
 
                 }*/
                 additionalInputPanel.removeAll();
-
                 additionalInputPanel=createInputPanel(additionalInputPanel,pythonAddInputs);
 
                 jobConfigPanel.removeAll();
                 jobConfigPanel=createInputPanel(jobConfigPanel,pythonConfigMap);
                 advanceBtn.setSelected(false);
-
-
-                //HopsworksConfigurable.this.inputPanel.repaint();
-
+               //HopsworksConfigurable.this.inputPanel.repaint();
             }
         }
     };
@@ -455,12 +472,6 @@ public class HopsworksConfigurable implements Configurable {
 
 
 
-
-
-
-
-
-
     @Override
     public boolean isModified() {
         // TODO: insert action logic here
@@ -473,7 +484,7 @@ public class HopsworksConfigurable implements Configurable {
 
     @Override
     public void apply() throws ConfigurationException {
-
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
 
         storedUrl = userUrl.getText().trim();
         storedKey = userKey.getText().trim();
@@ -484,11 +495,50 @@ public class HopsworksConfigurable implements Configurable {
         storedUserArgs=userArgs.getText().trim();
         storedMainClass=mainClass.getText().trim();
         storedExecId=execId.getText().trim();
-        if (sparkBtn.isSelected()) jobType= sparkBtn.getText();
-        else if (pythonBtn.isSelected()) jobType = pythonBtn.getText();
-        else  jobType= flinkBtn.getText();
+        if (sparkBtn.isSelected()) {
+            storedJobType = sparkBtn.getText();
+            //job config params
+            stored_spDriverMem=driverMem.getText().trim();
+            stored_spDriverVC=driverVC.getText().trim();
+            stored_spExecMem=executorMem.getText().trim();
+            stored_spExecVC=execVC.getText().trim();
+            stored_spNumExec=numExecutor.getText().trim();
+            //jobconfigs
+            properties.setValue(PATH_SP_DRIVER_VC,stored_spDriverVC);
+            properties.setValue(PATH_SP_DRVERMEM,stored_spDriverMem);
+            properties.setValue(PATH_SP_EXEC_VC,stored_spExecVC);
+            properties.setValue(PATH_SP_EXECMEM,stored_spExecMem);
+            properties.setValue(PATH_SP_NUM_EXEC,stored_spNumExec);
 
-        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        }
+        else if (pythonBtn.isSelected()){
+            storedJobType = pythonBtn.getText();
+            stored_pyCpuCore=cpuCore.getText().trim();
+            stored_pyMemory=memory.getText().trim();
+            properties.setValue(PATH_PY_MEMORY,stored_pyMemory);
+            properties.setValue(PATH_PY_CPU_CORE,stored_pyCpuCore);
+        }
+        else {
+            storedJobType = flinkBtn.getText();
+            stored_flNumTaskMan = numTaskManager.getText().trim();
+            stored_flJobManMem=jobManagerMem.getText().trim();
+            stored_flNumSlots=numSlots.getText().trim();
+            stored_flTaskManMem=taskManagerMem.getText().trim();
+            properties.setValue(PATH_FL_JOB_MANAGER_MEM,stored_flJobManMem);
+            properties.setValue(PATH_FL_NUM_TASK_MANGER, stored_flNumTaskMan);
+            properties.setValue(PATH_FL_TASK_MANAGER_MEM,stored_flTaskManMem);
+            properties.setValue(PATH_FL_NUM_SLOTS,stored_flNumSlots);
+        }
+
+        //advance config params
+        if(advanceBtn.isSelected()) isAdvancedConfig=true;
+        storedAddFile=additionalFiles.getText().trim();
+        storedAddJar=additionalJars.getText().trim();
+        storedPythonDepend=pythonDepend.getText().trim();
+        storedArchive=archives.getText().trim();
+        storedMoreProp=moreProps.getText().trim();
+
+        //set into project properties
         properties.setValue(HopsUtils.PATH_URL, storedUrl);
         properties.setValue(HopsUtils.PATH_KEY, storedKey);
         properties.setValue(HopsUtils.PATH_PROJECT, storedProject);
@@ -498,7 +548,14 @@ public class HopsworksConfigurable implements Configurable {
         properties.setValue(HopsUtils.PATH_USERARGS, storedUserArgs);
         properties.setValue(HopsUtils.PATH_MAINCLASS, storedMainClass);
         properties.setValue(HopsUtils.PATH_EXECID, storedExecId);
-        properties.setValue(HopsUtils.PATH_JOBTYPE,jobType);
+        properties.setValue(HopsUtils.PATH_JOBTYPE, storedJobType);
+        //advance config
+        properties.setValue(PATH_IS_ADVANCED,isAdvancedConfig);
+        properties.setValue(PATH_ADDFILE, storedAddFile);
+        properties.setValue(PATH_ADDJAR, storedAddJar);
+        properties.setValue(PATH_MORE_PROP, storedMoreProp);
+        properties.setValue(PATH_ARCHIVE, storedArchive);
+        properties.setValue(PATH_PYTHON_DEPEND,storedPythonDepend);
 
 
     }
@@ -533,10 +590,27 @@ public class HopsworksConfigurable implements Configurable {
             execId.setText(storedExecId);
         }
 
+        if ( storedJobType ==null || storedJobType.equals(HopsUtils.SPARK)){
+            sparkBtn.setSelected(true);
+            if (stored_spDriverMem!=null) driverMem.setText(stored_spDriverMem);
+            if (stored_spDriverVC!=null) driverVC.setText(stored_spDriverVC);
+            if (stored_spExecMem!=null) executorMem.setText(stored_spExecMem);
+            if (stored_spExecVC!=null) execVC.setText(stored_spExecVC);
+            if (stored_spNumExec!=null) numExecutor.setText(stored_spNumExec);
+        } else if (storedJobType.equals(HopsUtils.PYTHON)) {
+            pythonBtn.setSelected(true);
+            if (stored_pyMemory!=null) memory.setText(stored_pyMemory);
+            if (stored_pyCpuCore!=null) cpuCore.setText(stored_pyCpuCore);
+        } else  {
+            flinkBtn.setSelected(true);
+            if (stored_flJobManMem!=null) jobManagerMem.setText(stored_flJobManMem);
+            if (stored_flNumTaskMan!=null) numTaskManager.setText(stored_flNumTaskMan);
+            if (stored_flTaskManMem!=null) taskManagerMem.setText(stored_flTaskManMem);
+            if (stored_flNumSlots!=null) numSlots.setText(stored_flNumSlots);
+        }
 
-        if ( jobType==null || jobType ==  HopsUtils.SPARK) sparkBtn.setSelected(true);
-        else if (jobType == HopsUtils.PYTHON) pythonBtn.setSelected(true);
-        else  flinkBtn.setSelected(true);
+        advanceBtn.setSelected(isAdvancedConfig);
+
     }
 
 

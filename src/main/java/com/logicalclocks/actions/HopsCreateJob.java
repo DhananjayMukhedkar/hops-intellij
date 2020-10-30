@@ -47,7 +47,6 @@ public class HopsCreateJob extends AnAction {
         String localFilePath =e.getDataContext().getData("virtualFile").toString();
 
         File f = new File(localFilePath);
-
         String finalPath=destination+'/'+f.getName(); // Check File Separator hardcoding
 
         //String jobType=util.getJobType(f.getName());
@@ -57,6 +56,28 @@ public class HopsCreateJob extends AnAction {
         System.out.println(jobType);
         //String configType=util.getJobConfigType(jobType);
         //System.out.println(configType);
+        try{
+            if(jobType.equals(HopsUtils.SPARK)){
+
+
+                if(util.getIsAdvanced(e.getProject())){
+
+
+                }
+
+
+
+            }else if(jobType.equals(HopsUtils.PYTHON)){
+
+            }else{
+
+            }
+
+        }catch (NumberFormatException ne){
+            PluginNoticifaction.notify(proj,ne.getMessage());
+        }
+
+
 
         try {
             HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig( hopsworksApiKey, hopsworksUrl, projectName);

@@ -12,6 +12,13 @@ import javax.swing.*;
 import java.util.*;
 
 public class HopsUtils {
+    public static final String SPARK="SPARK";
+    public static final String PYSPARK="PYSPARK";
+    public static final String FLINK="FLINK";
+    public static final String PYTHON="PYTHON";
+    public static final String PYTHON_MAIN="org.apache.spark.deploy.PythonRunner";
+    public static final String PYTHON_CONFIG="pythonJobConfiguration";
+    public static final String SPARK_CONFIG="sparkJobConfiguration";
 
     public static final String PATH_URL = "hops.url";
     public static final String PATH_KEY = "hops.key";
@@ -23,27 +30,28 @@ public class HopsUtils {
     public static final String PATH_MAINCLASS = "hops.mainClass";
     public static final String PATH_EXECID = "hops.executionId";
     public static final String PATH_JOBTYPE="hops.jobType";
+    //jobConfigs params
+    public static final String PATH_SP_DRVERMEM = "hops.driverMem";
+    public static final String PATH_SP_EXECMEM = "hops.executorMem";
+    public static final String PATH_SP_EXEC_VC = "hops.executorVC";
+    public static final String PATH_SP_DRIVER_VC = "hops.driverVC";
+    public static final String PATH_SP_NUM_EXEC = "hops.numberExec";
+    //python
+    public static final String PATH_PY_MEMORY = "hops.memory";
+    public static final String PATH_PY_CPU_CORE = "hops.cpuCore";
+    //flink
+    public static final String PATH_FL_JOB_MANAGER_MEM = "hops.jobManagerMem";
+    public static final String PATH_FL_NUM_TASK_MANGER = "hops.numTaskManger";
+    public static final String PATH_FL_TASK_MANAGER_MEM = "hops.taskManagerMem";
+    public static final String PATH_FL_NUM_SLOTS = "hops.numSlots";
+    //advance config
+    public static final String PATH_IS_ADVANCED="hops.isAdvanced";
     public static final String PATH_ADDFILE = "hops.additionalFiles";
     public static final String PATH_PYTHON_DEPEND = "hops.pythonDependency";
     public static final String PATH_ARCHIVE = "hops.archive";
     public static final String PATH_ADDJAR = "hops.addJar";
     public static final String PATH_MORE_PROP = "hops.moreProp";
-    public static final String PATH_DRVERMEM = "hops.driverMem";
-    public static final String PATH_EXECMEM = "hops.executorMem";
-    public static final String PATH_EXEC_VC = "hops.executorVC";
-    public static final String PATH_DRIVER_VC = "hops.driverVC";
-    public static final String PATH_NUM_EXEC = "hops.numberExec";
-    public static final String PATH_MEMORY = "hops.memory";
-    public static final String PATH_CPU_CORE = "hops.cpuCore";
-
-    public static final String SPARK="SPARK";
-    public static final String PYSPARK="PYSPARK";
-    public static final String FLINK="FLINK";
-    public static final String PYTHON="PYTHON";
-    public static final String PYTHON_MAIN="org.apache.spark.deploy.PythonRunner";
-    public static final String PYTHON_CONFIG="pythonJobConfiguration";
-    public static final String SPARK_CONFIG="sparkJobConfiguration";
-
+    //LABELS//
     public static final String ARCHIVES_LBL = "Archives :";
     public static final String JARS_LBL = "Jars :";
     public static final String FILES_LBL = "Files :";
@@ -60,88 +68,156 @@ public class HopsUtils {
     public static final String MEMORY_LBL = "Memory (MB):";
     public static final String CPU_LBL = "CPU cores:";
     public static final String JOB_MANAGER_MM_LBL = "JobManager memory (MB)";
-    public static final String JNUM_TASK_LBL = "JNumber of TaskManagers";
+    public static final String NUM_TASK_LBL = "Number of Task Managers";
     public static final String TASK_MANAGER_MM_LBL = "TaskManager memory (MB)";
     public static final String NUM_SLOT_LBL = "Number of slots";
-
-
-
-
-
+    public static final String ADVANCED_LBL = "Advanced Configurations";
 
     private final HashMap<String,Integer> jobTypeCode=new HashMap<String,Integer>();
 
     public HopsUtils(){
         // Setting JOB TYPE //TO DO configurable job type
+        /*
+        UNUSED NOW
         jobTypeCode.put("jar",1);
         jobTypeCode.put("py",2);
         jobTypeCode.put("ipynb",2);
+        */
+
     }
 
     public String getURL(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_URL);
-
     }
 
     public String getAPIKey(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_KEY);
-
     }
 
     public String getProjectName(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_PROJECT);
-
     }
 
     public String getLocalFile(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_FILE);
-
     }
     public String getJobName(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_JOB);
-
     }
     public String getDestination(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_PROGRAM);
-
     }
 
     public String getUserArgs(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_USERARGS);
-
     }
 
     public String getUserMainClass(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_MAINCLASS);
-
     }
 
 
     public String getUserExecId(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_EXECID);
-
     }
 
     public String getUserJobType(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_JOBTYPE);
-
+    }
+    //advance configs getters//
+    public String getAdvancedArchive(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_ARCHIVE);
     }
 
-    public String getJobType(String fileName){
+    public String getAdvancedFiles(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_ADDFILE);
+    }
 
+    public String getPythonDependency(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_PYTHON_DEPEND);
+    }
+
+    public String getMoreProperties(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_MORE_PROP);
+    }
+    public String getAdvancedJars(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_ADDJAR);
+    }
+    public boolean getIsAdvanced(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getBoolean(PATH_IS_ADVANCED);
+    }
+
+    //advance config getters//
+
+    //job config parameters getters//
+    public String getDriverMemory(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_SP_DRVERMEM);
+    }
+    public String getDriverVC(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_SP_DRIVER_VC);
+    }
+    public String getExecutorMemory(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_SP_EXECMEM);
+    }
+    public String getExecutorVC(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_SP_EXEC_VC);
+    }
+    public String getNumberExecutor(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_SP_NUM_EXEC);
+    }
+    public String getPythonMemory(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_PY_MEMORY);
+    }
+    public String getPythonCpuCores(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_PY_CPU_CORE);
+    }
+    public String getJobManagerMemory(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_FL_JOB_MANAGER_MEM);
+    }
+    public String getNumTaskManager(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_FL_NUM_TASK_MANGER);
+    }
+    public String getTaskManagerMemory(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_FL_TASK_MANAGER_MEM);
+    }
+    public String getNumberSlots(Project project){
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_FL_NUM_SLOTS);
+    }
+    // job config parameters getters //
+
+    /*
+    UNUSED NOW
+     */
+    public String getJobType(String fileName){
         String ext= FilenameUtils.getExtension(fileName);
         Integer c=jobTypeCode.get(ext);
-
             switch (c.toString()) {
                 case "1":
                     return SPARK;
@@ -156,6 +232,9 @@ public class HopsUtils {
             }
     }
 
+        /*
+        UNUSED NOW
+         */
     public String getJobConfigType(String jobType){
 
         switch(jobType){
@@ -189,7 +268,6 @@ public class HopsUtils {
         //panel.add(spacer, spacerConstraints);
 
         return panel;
-
 
     }
 

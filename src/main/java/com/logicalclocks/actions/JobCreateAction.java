@@ -35,6 +35,8 @@ public class JobCreateAction extends JobAction {
     private String[] archives = {};
     private String[] sparkConf = {};
     //add
+
+
     private String appPath="";
     private String mainClass="";
     private String configType="";
@@ -68,9 +70,7 @@ public class JobCreateAction extends JobAction {
       this.cpusPerDriver = cpusPerDriver;
     }
 
-    public int getDriverMemInMbs() {
-      return driverMemInMbs;
-    }
+    public int getDriverMemInMbs() { return driverMemInMbs; }
 
     public void setDriverMemInMbs(int driverMemInMbs) {
       this.driverMemInMbs = driverMemInMbs;
@@ -92,9 +92,7 @@ public class JobCreateAction extends JobAction {
       this.gpusPerExecutor = gpusPerExecutor;
     }
 
-    public String getCommandArgs() {
-      return commandArgs;
-    }
+    public String getCommandArgs() { return commandArgs; }
 
     public void setCommandArgs(String commandArgs) {
       this.commandArgs = commandArgs;
@@ -188,19 +186,16 @@ public class JobCreateAction extends JobAction {
   }
 
   public JobCreateAction(HopsworksAPIConfig hopsworksAPIConfig, String jobName, Args args) throws IOException {
-    super(hopsworksAPIConfig, jobName);
 
+    super(hopsworksAPIConfig, jobName);
     this.hopsworksAPIConfig=hopsworksAPIConfig;
     this.jobName=jobName;
     String path=args.getAppPath().split("hdfs://")[1];
-
     if(args.getJobType()==HopsUtils.SPARK )// get job config from inspect API if SPARK
       payload = getJobConfig(args.getJobType(),path,args.getMainClass(),args.getAppPath());
     else if (args.getJobType()==HopsUtils.PYTHON)
       payload = getPythonJobConfig(args);
     else payload=getFlinkJobConfig();
-
-
 
   }
 
