@@ -44,7 +44,7 @@ public class HopsworksConfigurable implements Configurable {
     private JTextField driverVC  = new JTextField("1");
     private JTextField numExecutor  = new JTextField("1");
     //python configs
-    private JTextField memory  = new JTextField("2028");
+    private JTextField memory  = new JTextField("2048");
     private JTextField cpuCore  = new JTextField("1");
     //flink configs
     private JTextField jobManagerMem  = new JTextField("1024");
@@ -86,7 +86,6 @@ public class HopsworksConfigurable implements Configurable {
     private static String storedArchive=null;
     private static String storedMoreProp=null;
     private static boolean isAdvancedConfig=false;
-
     //spark job config params
     private static String stored_spDriverMem=null;
     private static String stored_spExecMem=null;

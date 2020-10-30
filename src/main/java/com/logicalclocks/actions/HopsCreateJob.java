@@ -5,22 +5,16 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.logicalclocks.HopsUtils;
 
-import com.sun.xml.bind.v2.TODO;
 import io.hops.cli.action.FileUploadAction;
 
 import io.hops.cli.config.HopsworksAPIConfig;
-import com.logicalclocks.actions.JobCreateAction ;
-import org.apache.commons.io.FilenameUtils;
 //import io.hops.cli.action.JobCreateAction;
 
 import java.io.File;
 import java.io.IOException;
 
-import java.nio.file.FileSystem;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class HopsCreateJob extends AnAction {
 
@@ -56,28 +50,6 @@ public class HopsCreateJob extends AnAction {
         System.out.println(jobType);
         //String configType=util.getJobConfigType(jobType);
         //System.out.println(configType);
-        try{
-            if(jobType.equals(HopsUtils.SPARK)){
-
-
-                if(util.getIsAdvanced(e.getProject())){
-
-
-                }
-
-
-
-            }else if(jobType.equals(HopsUtils.PYTHON)){
-
-            }else{
-
-            }
-
-        }catch (NumberFormatException ne){
-            PluginNoticifaction.notify(proj,ne.getMessage());
-        }
-
-
 
         try {
             HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig( hopsworksApiKey, hopsworksUrl, projectName);
@@ -97,6 +69,30 @@ public class HopsCreateJob extends AnAction {
             args.setAppPath(finalPath); //full app path
             args.setJobType(jobType);  // spark/pyspark/python
             args.setCommandArgs(userArgs.trim());
+            if(jobType.equals(HopsUtils.SPARK)){
+                args.setDriverMemInMbs(Integer.parseInt(util.getDriverMemory(proj)));
+                args.setDriverVC(Integer.parseInt(util.getDriverVC(proj)));
+                args.setExecutorMemInMbs(Integer.parseInt(util.getExecutorMemory(proj)));
+                args.setExecutorVC(Integer.parseInt(util.getExecutorVC(proj)));
+                args.setNumExecutors(Integer.parseInt(util.getNumberExecutor(proj)));
+                if(util.isAdvanced(proj)){
+                    args.setAdvanceConfig(true);
+                    args.setArchives(util.getAdvancedArchive(proj));
+                    args.setFiles(util.getAdvancedFiles(proj));
+                    args.setPythonDependency(util.getPythonDependency(proj));
+                    args.setJars(util.getAdvancedJars(proj));
+                    args.setProperties(util.getMoreProperties(proj));
+                }
+
+            }else if (jobType.equals(HopsUtils.PYTHON)){
+                args.setPythonMemory(Integer.parseInt(util.getPythonMemory(proj)));
+                args.setCpusCores(Integer.parseInt(util.getPythonCpuCores(proj)));
+            }else if (jobType.equals(HopsUtils.FLINK)){
+                args.setJobManagerMemory(Integer.parseInt(util.getJobManagerMemory(proj)));
+                args.setTaskManagerMemory(Integer.parseInt(util.getTaskManagerMemory(proj)));
+                args.setNumTaskManager(Integer.parseInt(util.getNumTaskManager(proj)));
+                args.setNumSlots(Integer.parseInt(util.getNumberSlots(proj)));
+            }
             //args.setConfigType(configType); // removed as set by inspect job config
 
             // create job

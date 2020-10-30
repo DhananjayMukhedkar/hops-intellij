@@ -158,7 +158,7 @@ public class HopsUtils {
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_ADDJAR);
     }
-    public boolean getIsAdvanced(Project project){
+    public boolean isAdvanced(Project project){
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getBoolean(PATH_IS_ADVANCED);
     }
