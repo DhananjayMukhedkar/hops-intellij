@@ -1,8 +1,6 @@
 package com.logicalclocks.actions;
 
-import com.logicalclocks.HopsUtils;
 import io.hops.cli.config.HopsworksAPIConfig;
-import net.minidev.json.JSONObject;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
@@ -373,13 +371,11 @@ public class JobCreateAction extends JobAction {
       objectBuilder.add("spark.dynamicAllocation.enabled",false);
 
       if(args.isAdvanceConfig()==true){
-        //objectBuilder.add("properties",);
 
         objectBuilder.add("spark.yarn.dist.pyFiles",args.getPythonDependency());
         objectBuilder.add("spark.yarn.dist.files",args.getFiles());
         objectBuilder.add("spark.yarn.dist.jars",args.getJars());
-        objectBuilder.add("spark.yarn.dist.archives",args.getArchives());
-
+        objectBuilder.add("properties",args.getProperties());
       }
 
 
@@ -391,10 +387,6 @@ public class JobCreateAction extends JobAction {
     }else if(args.getJobType().equals(FLINK)){
       jobConfig=getFlinkJobConfig(args);
     }
-
-
-
-
 
     return jobConfig;
 
@@ -411,7 +403,8 @@ public class JobCreateAction extends JobAction {
             .add("numberOfTaskManagers",args.getNumTaskManager())
             .add("taskmanager.heap.size",args.getTaskManagerMemory())
             .add("taskmanager.numberOfTaskSlots",args.getNumSlots())
-            .add("appName",jobName);
+            .add("appName",jobName)
+            .add("properties",args.getProperties());
             //.add("localResources","");
 
     return objectBuilder.build();
@@ -427,8 +420,9 @@ public class JobCreateAction extends JobAction {
             .add("cores",args.getCpusCores())
             .add("jobType",PYTHON)
             .add("appPath",args.getAppPath())
-            .add("defaultArgs",args.getCommandArgs());
-    //.add("localResources","");b
+            .add("defaultArgs",args.getCommandArgs())
+            .add("files",args.getFiles());
+    //.add("localResources","");
     return objectBuilder.build();
 
   }

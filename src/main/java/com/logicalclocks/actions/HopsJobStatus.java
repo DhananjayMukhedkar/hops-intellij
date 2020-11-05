@@ -3,7 +3,7 @@ package com.logicalclocks.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.logicalclocks.HopsUtils;
+import com.logicalclocks.HopsPluginUtils;
 import io.hops.cli.config.HopsworksAPIConfig;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class HopsJobStatus extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
 
-        HopsUtils util=new HopsUtils();
+        HopsPluginUtils util=new HopsPluginUtils();
         Project proj=e.getProject();
         String hopsworksApiKey = util.getAPIKey(proj);
         String hopsworksUrl = util.getURL(proj);

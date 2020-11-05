@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -145,7 +144,7 @@ public class JobsConfigurable implements Configurable {
         /*
         call FileUpload
          */
-        HopsUtils util=new HopsUtils();
+        HopsPluginUtils util=new HopsPluginUtils();
         String hopsworksApiKey = util.getAPIKey(project);
         String hopsworksUrl = util.getURL(project);
         String projectName = util.getProjectName(project);

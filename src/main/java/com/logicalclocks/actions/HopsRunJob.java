@@ -5,23 +5,14 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationDisplayType;
 import com.intellij.notification.NotificationGroup;
 import com.intellij.notification.NotificationType;
-import com.logicalclocks.actions.JobRunAction;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.newvfs.impl.VirtualFileImpl;
-import com.logicalclocks.HopsUtils;
-import io.hops.cli.action.FileUploadAction;
+import com.logicalclocks.HopsPluginUtils;
 import io.hops.cli.config.HopsworksAPIConfig;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,7 +29,7 @@ public class HopsRunJob extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        HopsUtils util=new HopsUtils();
+        HopsPluginUtils util=new HopsPluginUtils();
         Project proj=e.getProject();
         String hopsworksApiKey = util.getAPIKey(proj);
         String hopsworksUrl = util.getURL(proj);

@@ -9,9 +9,10 @@ import org.apache.commons.io.FilenameUtils;
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
 import javax.swing.*;
+import java.awt.*;
 import java.util.*;
 
-public class HopsUtils {
+public class HopsPluginUtils {
     public static final String SPARK="SPARK";
     public static final String PYSPARK="PYSPARK";
     public static final String FLINK="FLINK";
@@ -75,7 +76,7 @@ public class HopsUtils {
 
     private final HashMap<String,Integer> jobTypeCode=new HashMap<String,Integer>();
 
-    public HopsUtils(){
+    public HopsPluginUtils(){
         // Setting JOB TYPE //TO DO configurable job type
         /*
         UNUSED NOW
@@ -250,28 +251,30 @@ public class HopsUtils {
     }
 
 
-    public static JPanel createInputPanel(JPanel panel, LinkedHashMap<String, JTextField> map) {
+    public static JPanel createInputPanel(JPanel panel, LinkedHashMap<String, Component> map) {
 
-        Set<Map.Entry<String, JTextField>> e2 = map.entrySet();
-        Iterator<Map.Entry<String, JTextField>> it2 = e2.iterator();
+        Set<Map.Entry<String, Component>> e2 = map.entrySet();
+        Iterator<Map.Entry<String, Component>> it2 = e2.iterator();
         int j=0;
         while(it2.hasNext()){
-            Map.Entry<String, JTextField> pair = it2.next();
+            Map.Entry<String, Component> pair = it2.next();
             panel=createField(panel,j,pair.getKey(),pair.getValue());
             j++;
         }
 
-        JPanel spacer = new JPanel();
+        /*JPanel spacer = new JPanel();
         GridConstraints spacerConstraints = new GridConstraints();
         spacerConstraints.setRow(j);
         spacerConstraints.setFill(GridConstraints.FILL_BOTH);
-        //panel.add(spacer, spacerConstraints);
+        panel.add(spacer, spacerConstraints);
+        */
+
 
         return panel;
 
     }
 
-    public static JPanel createField(JPanel container,int row,String label,JTextField field ){
+    public static JPanel createField(JPanel container, int row, String label, Component field ){
 
         if (container!=null){
             GridConstraints pathLabelConstraint = new GridConstraints();
@@ -279,16 +282,23 @@ public class HopsUtils {
             pathLabelConstraint.setColumn(0);
             pathLabelConstraint.setFill(GridConstraints.FILL_HORIZONTAL);
             pathLabelConstraint.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
-            container.add(new JLabel(label), pathLabelConstraint);
+            JLabel lbl = new JLabel(label,JLabel.LEFT);
+            lbl.setPreferredSize(new Dimension(145,1) );
+
+          //  lbl.setHorizontalAlignment(JLabel.LEADING);
+            container.add(lbl, pathLabelConstraint);
 
             GridConstraints pathFieldConstraint = new GridConstraints();
             pathFieldConstraint.setHSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW);
             pathFieldConstraint.setFill(GridConstraints.FILL_HORIZONTAL);
-            pathFieldConstraint.setAnchor(GridConstraints.ANCHOR_WEST);
+            pathFieldConstraint.setAnchor(GridConstraints.ALIGN_LEFT);
             pathFieldConstraint.setRow(row);
             pathFieldConstraint.setColumn(1);
             pathFieldConstraint.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
+            //pathFieldConstraint.setIndent(10);
+
             container.add(field, pathFieldConstraint);
+
         }
         return container;
 

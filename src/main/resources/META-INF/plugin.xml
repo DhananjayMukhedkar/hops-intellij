@@ -16,7 +16,7 @@
         <!-- Add your extensions here -->
             <projectConfigurable groupId="tools"
                              displayName="Hopsworks Settings"
-                             instance="com.logicalclocks.HopsworksConfigurable" />
+                             instance="com.logicalclocks.HopsSettingsConfigurable" />
 
 
 

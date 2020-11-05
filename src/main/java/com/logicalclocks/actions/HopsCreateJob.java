@@ -3,7 +3,7 @@ package com.logicalclocks.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.logicalclocks.HopsUtils;
+import com.logicalclocks.HopsPluginUtils;
 
 import io.hops.cli.action.FileUploadAction;
 
@@ -29,7 +29,7 @@ public class HopsCreateJob extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         // TODO : Check File Separator hardcoding
-        HopsUtils util=new HopsUtils();
+        HopsPluginUtils util=new HopsPluginUtils();
         Project proj=e.getProject();
         String hopsworksApiKey = util.getAPIKey(proj);
         String hopsworksUrl = util.getURL(proj);
@@ -69,7 +69,7 @@ public class HopsCreateJob extends AnAction {
             args.setAppPath(finalPath); //full app path
             args.setJobType(jobType);  // spark/pyspark/python
             args.setCommandArgs(userArgs.trim());
-            if(jobType.equals(HopsUtils.SPARK)){
+            if(jobType.equals(HopsPluginUtils.SPARK)){
                 args.setDriverMemInMbs(Integer.parseInt(util.getDriverMemory(proj)));
                 args.setDriverVC(Integer.parseInt(util.getDriverVC(proj)));
                 args.setExecutorMemInMbs(Integer.parseInt(util.getExecutorMemory(proj)));
@@ -83,15 +83,22 @@ public class HopsCreateJob extends AnAction {
                     args.setJars(util.getAdvancedJars(proj));
                     args.setProperties(util.getMoreProperties(proj));
                 }
-
-            }else if (jobType.equals(HopsUtils.PYTHON)){
+            }else if (jobType.equals(HopsPluginUtils.PYTHON)){
                 args.setPythonMemory(Integer.parseInt(util.getPythonMemory(proj)));
                 args.setCpusCores(Integer.parseInt(util.getPythonCpuCores(proj)));
-            }else if (jobType.equals(HopsUtils.FLINK)){
+                if(util.isAdvanced(proj)){
+                    args.setAdvanceConfig(true);
+                    args.setFiles(util.getAdvancedFiles(proj));
+                }
+            }else if (jobType.equals(HopsPluginUtils.FLINK)){
                 args.setJobManagerMemory(Integer.parseInt(util.getJobManagerMemory(proj)));
                 args.setTaskManagerMemory(Integer.parseInt(util.getTaskManagerMemory(proj)));
                 args.setNumTaskManager(Integer.parseInt(util.getNumTaskManager(proj)));
                 args.setNumSlots(Integer.parseInt(util.getNumberSlots(proj)));
+                if(util.isAdvanced(proj)){
+                    args.setAdvanceConfig(true);
+                    args.setProperties(util.getMoreProperties(proj));
+                }
             }
             //args.setConfigType(configType); // removed as set by inspect job config
 

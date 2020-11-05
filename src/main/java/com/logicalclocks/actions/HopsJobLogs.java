@@ -1,13 +1,11 @@
 package com.logicalclocks.actions;
 
 //import io.hops.cli.action.JobLogsAction;
-import com.logicalclocks.actions.JobLogsAction;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.logicalclocks.HopsUtils;
+import com.logicalclocks.HopsPluginUtils;
 
-import io.hops.cli.action.JobStopAction;
 import io.hops.cli.config.HopsworksAPIConfig;
 
 import java.io.BufferedWriter;
@@ -15,7 +13,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,7 +30,7 @@ public class HopsJobLogs extends AnAction {
     public void actionPerformed(AnActionEvent e) {
         // TODO: insert action logic here
         // TODO: Caused by: org.apache.spark.SparkException: Exception thrown in awaitResult:
-        HopsUtils util=new HopsUtils();
+        HopsPluginUtils util=new HopsPluginUtils();
         Project proj=e.getProject();
         String hopsworksApiKey = util.getAPIKey(proj);
         String hopsworksUrl = util.getURL(proj);

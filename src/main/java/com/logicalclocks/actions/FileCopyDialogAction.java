@@ -3,7 +3,7 @@ package com.logicalclocks.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.logicalclocks.HopsUtils;
+import com.logicalclocks.HopsPluginUtils;
 
 import io.hops.cli.action.FileUploadAction;
 import io.hops.cli.config.HopsworksAPIConfig;
@@ -31,7 +31,7 @@ public class FileCopyDialogAction extends AnAction {
     public void actionPerformed(@NotNull AnActionEvent e) {
         // Using the event, implement an action. For example, create and show a dialog.
 
-        HopsUtils util=new HopsUtils();
+        HopsPluginUtils util=new HopsPluginUtils();
         Project proj=e.getProject();
 
         String hopsworksApiKey = util.getAPIKey(proj);

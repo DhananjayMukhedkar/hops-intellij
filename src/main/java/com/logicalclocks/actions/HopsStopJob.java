@@ -3,9 +3,7 @@ package com.logicalclocks.actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.logicalclocks.HopsUtils;
-import io.hops.cli.action.FileUploadAction;
-import io.hops.cli.action.JobRunAction;
+import com.logicalclocks.HopsPluginUtils;
 import io.hops.cli.action.JobStopAction;
 import io.hops.cli.config.HopsworksAPIConfig;
 
@@ -25,7 +23,7 @@ public class HopsStopJob extends AnAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        HopsUtils util=new HopsUtils();
+        HopsPluginUtils util=new HopsPluginUtils();
         Project proj=e.getProject();
         String hopsworksApiKey = util.getAPIKey(proj);
         String hopsworksUrl = util.getURL(proj);
