@@ -53,26 +53,44 @@ public class HopsPluginUtils {
     public static final String PATH_ADDJAR = "hops.addJar";
     public static final String PATH_MORE_PROP = "hops.moreProp";
     //LABELS//
-    public static final String ARCHIVES_LBL = "Archives :";
-    public static final String JARS_LBL = "Jars :";
-    public static final String FILES_LBL = "Files :";
-    public static final String PYTHON_LBL = "Python :";
-    public static final String MORE_PROP_LBL = "More Properties :";
-    public static final String HDFS_LBL = "HDFS destination path: ";
-    public static final String USER_ARGS_LBL = "User Arguments: " ;
-    public static final String MAIN_CLASS_LBL ="Main Class: ";
-    public static final String DRIVER_MEM_LBL = "Driver memory (MB): ";
-    public static final String EXECUTOR_MEM_LBL = "Executor memory (MB):";
-    public static final String EXEC_VC_LBL = "Executor virtual cores:";
-    public static final String DRIVER_VC_LBL = "Driver virtual cores: ";
-    public static final String NUM_EXEC_LBL = "Number of executors: ";
-    public static final String MEMORY_LBL = "Memory (MB):";
-    public static final String CPU_LBL = "CPU cores:";
-    public static final String JOB_MANAGER_MM_LBL = "JobManager memory (MB)";
+    public static final String ARCHIVES_LBL = "Archives";
+    public static final String JARS_LBL = "Jars";
+    public static final String FILES_LBL = "Files";
+    public static final String PYTHON_LBL = "Python";
+    public static final String MORE_PROP_LBL = "Properties";
+    public static final String HDFS_LBL = "HDFS destination path";
+    public static final String USER_ARGS_LBL = "User Arguments" ;
+    public static final String MAIN_CLASS_LBL ="Main Class";
+    public static final String DRIVER_MEM_LBL = "Driver Memory (MB)";
+    public static final String EXECUTOR_MEM_LBL = "Executor Memory (MB)";
+    public static final String EXEC_VC_LBL = "Executor Vrtual Cores";
+    public static final String DRIVER_VC_LBL = "Driver Virtual Cores";
+    public static final String NUM_EXEC_LBL = "Number of Executors";
+    public static final String MEMORY_LBL = "Memory (MB)";
+    public static final String CPU_LBL = "CPU Cores";
+    public static final String JOB_MANAGER_MM_LBL = "Job Manager memory (MB)";
     public static final String NUM_TASK_LBL = "Number of Task Managers";
-    public static final String TASK_MANAGER_MM_LBL = "TaskManager memory (MB)";
+    public static final String TASK_MANAGER_MM_LBL = "Task Manager memory (MB)";
     public static final String NUM_SLOT_LBL = "Number of slots";
     public static final String ADVANCED_LBL = "Advanced Configurations";
+    public static final String HOPS_PROJECT_LBL= "Hopsworks Project";
+    public static final String HOPS_URL_LBL= "Hopsworks URL";
+    public static final String HOPS_API_LBL= "Hopsworks API Key";
+    public static final String JOB_NAME_LBL= "Job Name";
+    public static final String LOG_PATH_LBL= "Local Path for Logs";
+    public static final String EXEC_ID_LBL= "Execution Id";
+    public static final String SPARK_BTN_LBL= "Spark ";
+    public static final String PYTHON_BTN_LBL= "Python ";
+    public static final String FLINK_BTN_LBL= "Flink ";
+    public static final String JOB_TYPE_LBL= "Job Type ";
+
+    public static final String CONST_2048="2048";
+    public static final String CONST_4096="4096";
+    public static final String CONST_1024="1024";
+    public static final String CONST_1="1";
+
+
+
 
     private final HashMap<String,Integer> jobTypeCode=new HashMap<String,Integer>();
 
@@ -283,7 +301,8 @@ public class HopsPluginUtils {
             pathLabelConstraint.setFill(GridConstraints.FILL_HORIZONTAL);
             pathLabelConstraint.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
             JLabel lbl = new JLabel(label,JLabel.LEFT);
-            lbl.setPreferredSize(new Dimension(145,1) );
+            pathLabelConstraint.setIndent(5);
+            lbl.setPreferredSize(new Dimension(190,1) );
 
           //  lbl.setHorizontalAlignment(JLabel.LEADING);
             container.add(lbl, pathLabelConstraint);
