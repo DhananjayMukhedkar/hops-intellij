@@ -371,7 +371,7 @@ public class JobCreateAction extends JobAction {
       objectBuilder.add("spark.dynamicAllocation.enabled",false);
 
       if(args.isAdvanceConfig()==true){
-
+        objectBuilder.add("spark.yarn.dist.archives",args.getArchives());
         objectBuilder.add("spark.yarn.dist.pyFiles",args.getPythonDependency());
         objectBuilder.add("spark.yarn.dist.files",args.getFiles());
         objectBuilder.add("spark.yarn.dist.jars",args.getJars());

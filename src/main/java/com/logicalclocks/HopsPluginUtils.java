@@ -83,6 +83,7 @@ public class HopsPluginUtils {
     public static final String PYTHON_BTN_LBL= "Python ";
     public static final String FLINK_BTN_LBL= "Flink ";
     public static final String JOB_TYPE_LBL= "Job Type ";
+    public static final String DYNAMIC_SLIDER_LBL= "Spark Dynamic ";
 
     public static final String CONST_2048="2048";
     public static final String CONST_4096="4096";

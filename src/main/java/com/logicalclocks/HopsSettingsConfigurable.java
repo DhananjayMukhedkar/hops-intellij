@@ -1,12 +1,10 @@
 package com.logicalclocks;
 
-import com.intellij.build.events.BuildEventsNls;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import javafx.scene.control.TitledPane;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
@@ -79,7 +77,7 @@ public class HopsSettingsConfigurable implements Configurable {
     private static String storedUrl = null;
     private static String storedKey = null;
     private static String storedProject = null;
-    private static String storedFile = null;
+    private static String storedLogFile = null;
     private static String storedJob = null;
     private static String storedProgram = null;
     private static String storedUserArgs = null;
@@ -127,6 +125,7 @@ public class HopsSettingsConfigurable implements Configurable {
     LinkedHashMap<String,Component> sparkAddInputs=new LinkedHashMap<String,Component>();
     LinkedHashMap<String,Component> pythonAddInputs=new LinkedHashMap<String,Component>();
     int layoutVGAP=2;
+    private static JSlider slider = new JSlider();
 
     public HopsSettingsConfigurable(Project project){
         this.project = project;
@@ -140,7 +139,7 @@ public class HopsSettingsConfigurable implements Configurable {
         storedUrl = properties.getValue(HopsPluginUtils.PATH_URL);
         storedKey = properties.getValue(HopsPluginUtils.PATH_KEY);
         storedProject = properties.getValue(HopsPluginUtils.PATH_PROJECT);
-        storedFile = properties.getValue(HopsPluginUtils.PATH_FILE);
+        storedLogFile = properties.getValue(HopsPluginUtils.PATH_FILE);
         storedJob = properties.getValue(HopsPluginUtils.PATH_JOB);
         storedProgram = properties.getValue(HopsPluginUtils.PATH_PROGRAM);
         storedUserArgs=properties.getValue(HopsPluginUtils.PATH_USERARGS);
@@ -310,6 +309,7 @@ public class HopsSettingsConfigurable implements Configurable {
         if(storedJobType == null || storedJobType.equals(HopsPluginUtils.SPARK)){
             additionalInputPanel=createInputPanel(additionalInputPanel,sparkAddInputs);
             jobConfigPanel = HopsPluginUtils.createInputPanel(jobConfigPanel, sparkConfigMap);
+
             if(isAdvancedConfig) {
                 advanceInputPanel = HopsPluginUtils.createInputPanel(advanceInputPanel, advanceFieldmap);
                 /*JSlider jSlider = new JSlider();
@@ -375,6 +375,16 @@ public class HopsSettingsConfigurable implements Configurable {
         sparkConfigMap.put(HopsPluginUtils.EXEC_VC_LBL,execVC);
         sparkConfigMap.put(HopsPluginUtils.DRIVER_VC_LBL,driverVC);
         sparkConfigMap.put(HopsPluginUtils.NUM_EXEC_LBL,numExecutor);
+        slider.setMinimum(0);
+        slider.setMaximum(100);
+        slider.setSnapToTicks(true);
+        slider.setValue(1);
+        slider.setOpaque(true);
+        slider.setMinorTickSpacing(1);
+        slider.setMajorTickSpacing(10);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        //sparkConfigMap.put(DYNAMIC_SLIDER_LBL,slider);
         // python configs
         pythonConfigMap.put(HopsPluginUtils.MEMORY_LBL,memory);
         pythonConfigMap.put(HopsPluginUtils.CPU_LBL,cpuCore);
@@ -605,14 +615,14 @@ public class HopsSettingsConfigurable implements Configurable {
         storedUrl = userUrl.getText().trim();
         storedKey = userKey.getText().trim();
         storedProject= userProject.getText().trim();
-        storedFile= logFilePath.getText().trim();
+        storedLogFile = logFilePath.getText().trim();
         storedJob=jobName.getText().trim();
         storedProgram= hdfsPath.getText().trim();
         storedUserArgs=userArgs.getText().trim();
         storedMainClass=mainClass.getText().trim();
         storedExecId=execId.getText().trim();
         if (sparkBtn.isSelected()) {
-            storedJobType = sparkBtn.getText();
+            storedJobType = SPARK;
             //job config params
             stored_spDriverMem=driverMem.getText().trim();
             stored_spDriverVC=driverVC.getText().trim();
@@ -628,14 +638,14 @@ public class HopsSettingsConfigurable implements Configurable {
 
         }
         else if (pythonBtn.isSelected()){
-            storedJobType = pythonBtn.getText();
+            storedJobType = PYTHON;
             stored_pyCpuCore=cpuCore.getText().trim();
             stored_pyMemory=memory.getText().trim();
             properties.setValue(PATH_PY_MEMORY,stored_pyMemory);
             properties.setValue(PATH_PY_CPU_CORE,stored_pyCpuCore);
         }
         else {
-            storedJobType = flinkBtn.getText();
+            storedJobType = FLINK;
             stored_flNumTaskMan = numTaskManager.getText().trim();
             stored_flJobManMem=jobManagerMem.getText().trim();
             stored_flNumSlots=numSlots.getText().trim();
@@ -659,7 +669,7 @@ public class HopsSettingsConfigurable implements Configurable {
         properties.setValue(HopsPluginUtils.PATH_URL, storedUrl);
         properties.setValue(HopsPluginUtils.PATH_KEY, storedKey);
         properties.setValue(HopsPluginUtils.PATH_PROJECT, storedProject);
-        properties.setValue(HopsPluginUtils.PATH_FILE, storedFile);
+        properties.setValue(HopsPluginUtils.PATH_FILE, storedLogFile);
         properties.setValue(HopsPluginUtils.PATH_JOB, storedJob);
         properties.setValue(HopsPluginUtils.PATH_PROGRAM, storedProgram);
         properties.setValue(HopsPluginUtils.PATH_USERARGS, storedUserArgs);
@@ -689,7 +699,7 @@ public class HopsSettingsConfigurable implements Configurable {
             userProject.setText(storedProject);
         }
         if (logFilePath != null) {
-            logFilePath.setText(storedFile);
+            logFilePath.setText(storedLogFile);
         }
         if (jobName != null) {
             jobName.setText(storedJob);
@@ -735,7 +745,7 @@ public class HopsSettingsConfigurable implements Configurable {
             additionalJars.setText(storedAddJar);
         }
         if (additionalFiles != null) {
-            additionalFiles.setText(storedFile);
+            additionalFiles.setText(storedAddFile);
         }
         if (pythonDepend != null) {
             pythonDepend.setText(storedPythonDepend);
