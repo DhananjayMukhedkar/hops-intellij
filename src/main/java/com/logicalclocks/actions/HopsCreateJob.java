@@ -107,8 +107,8 @@ public class HopsCreateJob extends AnAction {
             int status =createJob.execute();
             PluginNoticifaction news=new PluginNoticifaction();
             if (status == 200 || status == 201) {
-                 news.notify(e.getProject()," Job :"+jobName+" | Created");
-            } else news.notify(e.getProject()," Job :"+jobName+" | Creation Failed");
+                 news.notify(e.getProject()," Job: "+jobName+" | Created");
+            } else news.notify(e.getProject()," Job: "+jobName+" | Creation Failed");
         } catch (IOException ex) {
             PluginNoticifaction.notify(e.getProject(),ex.getMessage());
             Logger.getLogger(JobCreateAction.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);

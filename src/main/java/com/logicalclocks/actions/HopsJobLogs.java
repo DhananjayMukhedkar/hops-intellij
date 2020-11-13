@@ -55,9 +55,9 @@ public class HopsJobLogs extends AnAction {
                 writeFile(localPathLogs,sb.toString(),logsJob.getStdOut());
                 writeFile(localPathLogs,sb2.toString(),logsJob.getStdErr());
                 //notify
-                StringBuilder sb3=new StringBuilder().append(" Job :").append(jobName).append(" | Execution Id :").append(logsJob.getExecutionId()).append(" | Logs downloaded");
+                StringBuilder sb3=new StringBuilder().append(" Job: ").append(jobName).append(" | Execution Id: ").append(logsJob.getExecutionId()).append(" | Logs downloaded");
                 PluginNoticifaction.notify(e.getProject(),sb3.toString());
-            } else PluginNoticifaction.notify(e.getProject()," Job :"+jobName+" | Get Logs Failed");
+            } else PluginNoticifaction.notify(e.getProject()," Job: "+jobName+" | Get Logs Failed");
 
         } catch (IOException ex) {
             PluginNoticifaction.notify(e.getProject(),ex.getMessage());

@@ -37,7 +37,7 @@ public class HopsRemoveJob extends AnAction {
                 JobRemoveAction rmJob = new JobRemoveAction(hopsworksAPIConfig, jobName);
                 int status=rmJob.execute();
                 PluginNoticifaction news=new PluginNoticifaction();
-                news.notify(e.getProject(),"Job :"+jobName+" | Deleted");
+                news.notify(e.getProject(),"Job: "+jobName+" | Deleted");
 
 
               /*  if (status == 200 || status == 201 || status == 202) {
