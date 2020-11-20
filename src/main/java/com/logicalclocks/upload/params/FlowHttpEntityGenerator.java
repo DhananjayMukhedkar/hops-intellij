@@ -150,9 +150,6 @@ public class FlowHttpEntityGenerator implements IFileToHttpEntity {
 
   public boolean hasNext() {
 
-    if (parameter.getFlowChunkNumber() <= parameter.getFlowTotalChunks()) {
-      return true;
-    }
-    return false;
+    return parameter.getFlowChunkNumber() <= parameter.getFlowTotalChunks();
   }
 }
