@@ -1,4 +1,4 @@
-package com.logicalclocks.actions;
+package io.hops.cli.action;
 
 import io.hops.cli.config.HopsworksAPIConfig;
 import org.apache.commons.lang.SystemUtils;

@@ -1,13 +1,15 @@
-package com.logicalclocks.actions;
+package io.hops.cli.action;
 
-//import com.logicalclocks.actions.HopsworksAction;
-import com.logicalclocks.actions.HopsworksAction;
+
+import io.hops.cli.action.HopsworksAction;
 import io.hops.cli.config.HopsworksAPIConfig;
-import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.CloseableHttpClient;
 
-import javax.json.*;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -71,7 +73,7 @@ public abstract class JobAction extends HopsworksAction {
         this.jsonResult = jsonResult;
     }
 
-    protected int readJsonRepoonse(CloseableHttpResponse response) throws IOException {
+    protected int readJsonResponse(CloseableHttpResponse response) throws IOException {
         BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
         StringBuilder res = new StringBuilder();
         String line = "";
@@ -98,7 +100,7 @@ public abstract class JobAction extends HopsworksAction {
         HttpGet request = getJobGet("/executions?sort_by=appId:desc&limit=1");
 
         CloseableHttpResponse response = client.execute(request);
-        int status = readJsonRepoonse(response);
+        int status = readJsonResponse(response);
         if (status != 200 && status != 201) {
             client.close();
             if (response != null) {
@@ -117,32 +119,20 @@ public abstract class JobAction extends HopsworksAction {
         return hopsworksAPIConfig.getProjectUrl() + this.getProjectId() + "/jobs/";
     }
 
-
-    protected JsonObject readJson(CloseableHttpResponse response) throws IOException {
-        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-        StringBuilder res = new StringBuilder();
-        String line = "";
-        while ((line = rd.readLine()) != null) {
-            res.append(line);
-        }
-        JsonReader jsonReader = Json.createReader(new StringReader(res.toString()));
-        JsonObject body = jsonReader.readObject();
-        jsonReader.close();
-        response.close();
-        setResult(res.toString());
-        setJsonResult(body);
-        return body ;
-    }
-
+    /**
+     * get user job configuration for spark
+     * @param jobType
+     * @param path
+     * @return
+     * @throws IOException
+     */
     protected JsonObject inspectJobConfig(String jobType,String path) throws IOException {
 
         CloseableHttpClient client = getClient();
         HttpGet request = new HttpGet(getJobsOnlyUrl()+jobType+"/inspection?path="+path);
         addHeaders(request);
-
         CloseableHttpResponse response = client.execute(request);
-
-        int status = readJsonRepoonse(response);
+        int status = readJsonResponse(response);
         if (status != 200 && status != 201) {
             client.close();
             if (response != null) {
@@ -155,68 +145,12 @@ public abstract class JobAction extends HopsworksAction {
 
     }
 
-/*    protected String[] getExecutionStatus(Integer execId) throws IOException {
-        // get execution status by id;get last execution if execId IS NULL
-        String[] statusArr=new String[2];
-        CloseableHttpClient client = getClient();
-        HttpGet request;
-        if(execId!=null){
-            request = getJobGet("/executions/"+execId.toString());
-        }else request = getJobGet("/executions?sort_by=appId:desc&limit=1");
-
-        CloseableHttpResponse response = client.execute(request);
-        int status = readJsonRepoonse(response);
-        if (status != 200 && status != 201) {
-            client.close();
-            if (response != null) {
-                response.close();
-            }
-            throw new IOException("Could not get latest execution: " + status);
-        }
-        if(execId==null){ // if list
-            JsonArray array = this.getJsonResult().getJsonArray("items");
-            if(array!=null){
-                statusArr[0]=array.get(0).asJsonObject().get("state").toString();
-                statusArr[1]=array.get(0).asJsonObject().get("finalStatus").toString();
-            }
-        }else {
-            statusArr[0]=this.getJsonResult().getString("state");
-            statusArr[1]=this.getJsonResult().getString("finalStatus");
-        }
-
-        client.close();
-        response.close();
-        return statusArr;
-    }*/
-
-    protected String[] getExecutionStatus(Integer execId) throws IOException {
-        // get execution status by id;get last execution if execId IS NULL
-        String[] statusArr=new String[2];
-        CloseableHttpClient client = getClient();
-        HttpGet request;
-        if(execId==null){
-            int excId = getLatestExecution();
-
-            JsonArray array = this.getJsonResult().getJsonArray("items");
-            if(array!=null){
-                statusArr[0]=array.get(0).asJsonObject().get("state").toString();
-                statusArr[1]=array.get(0).asJsonObject().get("finalStatus").toString();
-            }
-        }else {
-            getExecutionById(execId);
-            statusArr[0]=this.getJsonResult().getString("state");
-            statusArr[1]=this.getJsonResult().getString("finalStatus");
-        }
-
-        return statusArr;
-    }
-
-    protected void getExecutionById(Integer execId) throws IOException {
+    protected int getExecutionById(Integer execId) throws IOException {
         CloseableHttpClient client = getClient();
         HttpGet request = getJobGet("/executions/"+execId.toString());
 
         CloseableHttpResponse response = client.execute(request);
-        int status = readJsonRepoonse(response);
+        int status = readJsonResponse(response);
         if (status != 200 && status != 201) {
             client.close();
             if (response != null) {
@@ -227,8 +161,23 @@ public abstract class JobAction extends HopsworksAction {
 
         client.close();
         response.close();
+        return status;
+    }
 
+    /**
+     * check if job name exists
+     * @return true if found
+     * @throws IOException
+     */
+    public boolean getJobExists() throws IOException {
+        CloseableHttpClient getClient = getClient();
+        HttpGet request = getJobGet("");
+        CloseableHttpResponse response = getClient.execute(request);
+        int statusCode = readJsonResponse(response);
+        if(statusCode == 404)
+             return false;
 
+        return true;
     }
 
 

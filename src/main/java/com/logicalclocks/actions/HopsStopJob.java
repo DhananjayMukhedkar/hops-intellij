@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.logicalclocks.HopsPluginUtils;
+
 import io.hops.cli.action.JobStopAction;
 import io.hops.cli.config.HopsworksAPIConfig;
 
@@ -37,16 +38,13 @@ public class HopsStopJob extends AnAction {
 
             if (status == 200 || status == 201 || status == 202) {
                 PluginNoticifaction.notify(e.getProject(),"Job: "+jobName +" | Stopped");
-            }  else PluginNoticifaction.notify(e.getProject(),"Job: "+jobName +" | Stop failed");
+            }  else PluginNoticifaction.notifyError("Job: "+jobName +" | Stop failed");
 
         } catch (IOException ex) {
-            PluginNoticifaction.notify(e.getProject(),ex.getMessage());
-            Logger.getLogger(JobStopAction.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (URISyntaxException ex) {
-            PluginNoticifaction.notify(e.getProject(),ex.getMessage());
-            Logger.getLogger(JobStopAction.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            PluginNoticifaction.notifyError(ex.getMessage());
+            Logger.getLogger(HopsStopJob.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (Exception ex) {
-            PluginNoticifaction.notify(e.getProject(),ex.getMessage());
+            PluginNoticifaction.notifyError(ex.getMessage());
             Logger.getLogger(HopsStopJob.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 

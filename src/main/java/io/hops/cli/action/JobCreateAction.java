@@ -1,4 +1,4 @@
-package com.logicalclocks.actions;
+package io.hops.cli.action;
 
 import io.hops.cli.config.HopsworksAPIConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -7,16 +7,12 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import javax.json.*;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.io.IOException;
-
 import static org.apache.http.HttpHeaders.USER_AGENT;
 
 public class JobCreateAction extends JobAction {
-
 
   private static final String SPARK = "SPARK";
   private static final String PYTHON = "PYTHON";
@@ -27,6 +23,9 @@ public class JobCreateAction extends JobAction {
   @XmlRootElement
   public static class Args {
     private int numExecutors=1;
+    private int initExecutors=1;
+    private int minExecutors=1;
+    private int maxExecutors;
     private int cpusPerExecutor=1;
     private int cpusPerDriver=1;
     private int driverMemInMbs = 2048;
@@ -34,6 +33,7 @@ public class JobCreateAction extends JobAction {
     private int gpusPerExecutor = 0;
     private String commandArgs = "";
     private String jvmArgs = "";
+    //old variables
     /*private String[] files = {};
     private String[] jars = {};
     private String[] archives = {};*/
@@ -43,7 +43,6 @@ public class JobCreateAction extends JobAction {
     private String archives = "";
     private String properties = "";
     private String pythonDependency = "";
-    //add
     private String appPath="";
     private String mainClass="";
     private String configType="";
@@ -53,15 +52,43 @@ public class JobCreateAction extends JobAction {
     private int cpusCores=1;
     private int pythonMemory=2048;
     private int jobManagerMemory=1024;
-
-
     private int numTaskManager=1;
     private int taskManagerMemory=1024;
     private int numSlots=1;
     private boolean isAdvanceConfig=false;
+    private boolean isDynamicAllocation =false;
 
-    //private final String SPARK_CONFIG="sparkJobConfiguration";
-    //private final String SPARK="SPARK";
+    public int getInitExecutors() {
+      return initExecutors;
+    }
+
+    public void setInitExecutors(int initExecutors) {
+      this.initExecutors = initExecutors;
+    }
+
+    public int getMinExecutors() {
+      return minExecutors;
+    }
+
+    public void setMinExecutors(int minExecutors) {
+      this.minExecutors = minExecutors;
+    }
+
+    public int getMaxExecutors() {
+      return maxExecutors;
+    }
+
+    public void setMaxExecutors(int maxExecutors) {
+      this.maxExecutors = maxExecutors;
+    }
+
+    public boolean isDynamic() {
+      return isDynamicAllocation;
+    }
+
+    public void setDynamic(boolean dynamic) {
+      isDynamicAllocation = dynamic;
+    }
 
     public Args() {}
 
@@ -125,7 +152,9 @@ public class JobCreateAction extends JobAction {
       this.jvmArgs = jvmArgs;
     }
 
-/*    public String[] getFiles() {
+    //old variables
+/*
+  public String[] getFiles() {
       return files;
     }
 
@@ -203,7 +232,6 @@ public class JobCreateAction extends JobAction {
       this.numSlots = numSlots;
     }
 
-    //add
     public String getAppPath() {
       return appPath;
     }
@@ -286,7 +314,6 @@ public class JobCreateAction extends JobAction {
 
   private static final Logger logger = LoggerFactory.getLogger(JobCreateAction.class);
   private final JsonObject payload;
-  //test
   private final HopsworksAPIConfig hopsworksAPIConfig;
   private final String jobName;
 
@@ -300,76 +327,36 @@ public class JobCreateAction extends JobAction {
     this.hopsworksAPIConfig=hopsworksAPIConfig;
     this.jobName=jobName;
     String path=args.getAppPath().split("hdfs://")[1];
-   /* if(args.getJobType()==HopsUtils.SPARK )// get job config from inspect API if SPARK
-      payload = getJobConfig(args,path);
-    else if (args.getJobType()==HopsUtils.PYTHON)
-      payload = getPythonJobConfig(args);
-    else payload=getFlinkJobConfig();*/
+
     payload = getJobConfig(args,path);
 
   }
 
-/*  public JsonObjectBuilder createConfigObj(JsonObjectBuilder objectBuilder, Args args, String jobName){
-
-      objectBuilder.add("type", args.getConfigType())
-              .add("appName", jobName)
-              .add("amQueue", "default")
-              .add("amMemory", args.getDriverMemInMbs())
-              .add("amVCores", 1)
-              .add("jobType", args.getJobType())
-              .add("appPath", args.getAppPath())
-              .add("mainClass", args.getMainClass())
-              .add("spark.executor.instances", 1)
-              .add("spark.executor.cores", 1)
-              .add("spark.executor.memory", args.getExecutorMemInMbs())
-              .add("spark.executor.gpus", 0)
-              .add("spark.dynamicAllocation.enabled", false)
-              .add("spark.dynamicAllocation.minExecutors", 1)
-              .add("spark.dynamicAllocation.maxExecutors", 10)
-              .add("spark.dynamicAllocation.initialExecutors", 1);
-
-    return objectBuilder;
-
-
-  }*/
-
   private JsonObject getJobConfig(Args args,String programPath) throws IOException {
     //inspect job config
     JsonObject jobConfig = null;
-
-    if(args.getJobType().equals(SPARK)){
+    if(args.getJobType().equals(SPARK)){ //inspect spark job config first
       JsonObject respConfig = inspectJobConfig(args.getJobType().toLowerCase(), programPath);
-
-     /* respConfig.putIfAbsent("mainClass",Json.createValue(args.getMainClass()));
-      respConfig.put("appPath",Json.createValue(args.getAppPath()));
-      respConfig.put("defaultArgs",Json.createValue(args.getCommandArgs()));
-      respConfig.put("amMemory",Json.createValue(args.getDriverMemInMbs()));
-      respConfig.put("amVCores",Json.createValue(args.getDriverVC()));
-      respConfig.put("spark.executor.instances",Json.createValue(args.getNumExecutors()));
-      respConfig.put("spark.executor.memory",Json.createValue(args.getExecutorMemInMbs()));
-      respConfig.put("spark.executor.cores",Json.createValue(args.getExecutorVC()));*/
 
       JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
       for(String key : respConfig.keySet()) {
-     /*   if(key.equalsIgnoreCase("appPath")){ // add full app path
-          objectBuilder.add(key, args.getAppPath());
-        }else*/
           objectBuilder.add(key, respConfig.get(key));
       }
- /*     if(!respConfig.containsKey("mainClass")) { // if no main class add from user input
-        objectBuilder.add("mainClass", args.getMainClass());
-      }*/
+      //add user job config
       objectBuilder.add("appPath", args.getAppPath());
       objectBuilder.add("mainClass", args.getMainClass());
-
       objectBuilder.add("defaultArgs",Json.createValue(args.getCommandArgs()));
       objectBuilder.add("amMemory",Json.createValue(args.getDriverMemInMbs()));
       objectBuilder.add("amVCores",Json.createValue(args.getDriverVC()));
-      objectBuilder.add("spark.executor.instances",Json.createValue(args.getNumExecutors()));
       objectBuilder.add("spark.executor.memory",Json.createValue(args.getExecutorMemInMbs()));
       objectBuilder.add("spark.executor.cores",Json.createValue(args.getExecutorVC()));
-      objectBuilder.add("spark.dynamicAllocation.enabled",false);
-
+      objectBuilder.add("spark.dynamicAllocation.enabled",args.isDynamic());
+      objectBuilder.add("spark.executor.instances",Json.createValue(args.getNumExecutors()));
+      if(args.isDynamic()){
+        objectBuilder.add("spark.dynamicAllocation.minExecutors",args.getMinExecutors());
+        objectBuilder.add("spark.dynamicAllocation.maxExecutors",args.getMaxExecutors());
+        objectBuilder.add("spark.dynamicAllocation.initialExecutors",args.getInitExecutors());
+      }
       if(args.isAdvanceConfig()==true){
         objectBuilder.add("spark.yarn.dist.archives",args.getArchives());
         objectBuilder.add("spark.yarn.dist.pyFiles",args.getPythonDependency());
@@ -378,9 +365,7 @@ public class JobCreateAction extends JobAction {
         objectBuilder.add("properties",args.getProperties());
       }
 
-
       jobConfig= objectBuilder.build();
-
 
     }else if(args.getJobType().equals(PYTHON)){
       jobConfig=getPythonJobConfig(args);
@@ -432,22 +417,19 @@ public class JobCreateAction extends JobAction {
   public int execute() throws Exception {
 
     CloseableHttpClient getClient = getClient();
-    //HttpPut request = new HttpPut(getJobUrl() + "/" + getJobName());
-    HttpPut request = new HttpPut(getJobUrl());
 
+    HttpPut request = new HttpPut(getJobUrl());
     request.addHeader("User-Agent", USER_AGENT);
     request.addHeader("Authorization", "ApiKey " + hopsworksAPIConfig.getApiKey());
     request.setHeader("Accept", "application/json");
     request.setHeader("Content-type", "application/json");
 
     StringEntity entity = new StringEntity(payload.toString());
-    //StringEntity entity = new StringEntity(respConfig.toString());
     request.setEntity(entity);
 
     CloseableHttpResponse response = getClient.execute(request);
-    int status = readJsonRepoonse(response);
+    int status = readJsonResponse(response);
     response.close();
-
     return status;
   }
 

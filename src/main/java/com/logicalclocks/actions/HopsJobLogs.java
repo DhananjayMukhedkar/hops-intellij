@@ -6,13 +6,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.logicalclocks.HopsPluginUtils;
 
+import io.hops.cli.action.JobLogsAction;
 import io.hops.cli.config.HopsworksAPIConfig;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URISyntaxException;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,6 +48,7 @@ public class HopsJobLogs extends AnAction {
                 logsJob = new JobLogsAction(hopsworksAPIConfig, jobName, userExecId);
             }else logsJob  = new JobLogsAction(hopsworksAPIConfig, jobName);
 
+
             int status=logsJob.execute();
             if (status == 200 || status == 201) {
                 StringBuilder sb=new StringBuilder(jobName).append("_id").append(logsJob.getExecutionId()).append("_stdOut.log");
@@ -57,16 +59,13 @@ public class HopsJobLogs extends AnAction {
                 //notify
                 StringBuilder sb3=new StringBuilder().append(" Job: ").append(jobName).append(" | Execution Id: ").append(logsJob.getExecutionId()).append(" | Logs downloaded");
                 PluginNoticifaction.notify(e.getProject(),sb3.toString());
-            } else PluginNoticifaction.notify(e.getProject()," Job: "+jobName+" | Get Logs Failed");
+            } else PluginNoticifaction.notifyError(" Job: "+jobName+" | Get Logs Failed");
 
         } catch (IOException ex) {
-            PluginNoticifaction.notify(e.getProject(),ex.getMessage());
-            Logger.getLogger(JobLogsAction.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (URISyntaxException ex) {
-            PluginNoticifaction.notify(e.getProject(),ex.getMessage());
+            PluginNoticifaction.notifyError(ex.getMessage());
             Logger.getLogger(JobLogsAction.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         } catch (Exception ex) {
-            PluginNoticifaction.notify(e.getProject(),ex.getMessage());
+            PluginNoticifaction.notifyError(ex.getMessage());
             Logger.getLogger(HopsJobLogs.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 

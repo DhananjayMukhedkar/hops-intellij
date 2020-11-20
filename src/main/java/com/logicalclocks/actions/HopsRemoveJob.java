@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.logicalclocks.HopsPluginUtils;
+//import io.hops.cli.action.JobRemoveAction;
 import io.hops.cli.action.JobRemoveAction;
 import io.hops.cli.config.HopsworksAPIConfig;
 
@@ -15,10 +16,9 @@ public class HopsRemoveJob extends AnAction {
 
     @Override
     public void update(AnActionEvent e) {
-        // Set the availability based on whether a project is open
+        // Set the availability if a project is open
         Project project = e.getProject();
         e.getPresentation().setEnabledAndVisible(project != null);
-
     }
 
 
@@ -36,20 +36,18 @@ public class HopsRemoveJob extends AnAction {
                 HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig( hopsworksApiKey, hopsworksUrl, projectName);
                 JobRemoveAction rmJob = new JobRemoveAction(hopsworksAPIConfig, jobName);
                 int status=rmJob.execute();
-                PluginNoticifaction news=new PluginNoticifaction();
-                news.notify(e.getProject(),"Job: "+jobName+" | Deleted");
 
-
-              /*  if (status == 200 || status == 201 || status == 202) {
-                   news.notify(e.getProject(),"Job :"+jobName+" | Deleted");
-                } else news.notify(e.getProject(),"Job :"+jobName+" | Remove failed");*/
+                if (status == 200 || status == 204 || status == 202) {
+                    PluginNoticifaction.notify("Job: "+jobName+" | Deleted");
+                } else PluginNoticifaction.notifyError("Job: "+jobName+" | Remove failed");
 
             } catch (IOException ex) {
-                PluginNoticifaction.notify(e.getProject(),ex.getMessage());
+                PluginNoticifaction.notifyError(ex.getMessage());
                 Logger.getLogger(JobRemoveAction.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
             }catch (Exception ex) {
-                PluginNoticifaction.notify(e.getProject(),ex.getMessage());
+
                 Logger.getLogger(HopsRemoveJob.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+                PluginNoticifaction.notifyError(ex.getMessage());
             }
 
     }

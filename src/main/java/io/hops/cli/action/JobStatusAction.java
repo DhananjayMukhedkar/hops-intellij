@@ -1,4 +1,4 @@
-package com.logicalclocks.actions;
+package io.hops.cli.action;
 
 import io.hops.cli.config.HopsworksAPIConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -12,13 +12,11 @@ import java.util.logging.Logger;
  * read job status which can be accessed via getter method
  */
 public class JobStatusAction extends JobAction {
+
     Logger logger = Logger.getLogger(JobStatusAction.class.getName());
     protected  String[] jobStatusArr=new String[2];
-
     private Integer executionId;
 
-    //private HopsworksAPIConfig hopsworksAPIConfig;
-    //private String jobName;
     public String[] getJobStatusArr() {
         return jobStatusArr;
     }
@@ -32,17 +30,20 @@ public class JobStatusAction extends JobAction {
     }
 
     public JobStatusAction(HopsworksAPIConfig hopsworksAPIConfig, String jobName) {
-
         super(hopsworksAPIConfig, jobName);
     }
 
     public JobStatusAction(HopsworksAPIConfig hopsworksAPIConfig, String jobName, String executionId) {
         super(hopsworksAPIConfig, jobName);
-        try{
-            this.executionId=Integer.parseInt(executionId);
-        } catch (NumberFormatException ex){
-            logger.log(Level.INFO,"Not a valid number for execution id; Skipped");
+        if(!executionId.equals("")){
+            try{
+                this.executionId=Integer.parseInt(executionId);
+            } catch (NumberFormatException ex){
+                logger.log(Level.INFO,"Not a valid number execution id; Skipped");
+            }
+
         }
+
     }
 
     @Override
@@ -66,8 +67,6 @@ public class JobStatusAction extends JobAction {
 
         if (statusArr!=null){
             setJobStatusArr(statusArr);
-            logger.log(Level.INFO," --- Job Name :"+jobName+" | State :"+statusArr[0]);
-            logger.log(Level.INFO," --- Job Name :"+jobName+" | Final Status :"+statusArr[1]);
             return 0;
         }return 1;
 

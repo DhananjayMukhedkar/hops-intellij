@@ -1,15 +1,12 @@
 package com.logicalclocks.actions;
 
 //import io.hops.cli.action.JobRunAction;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationGroup;
-import com.intellij.notification.NotificationType;
-
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.logicalclocks.HopsPluginUtils;
+import io.hops.cli.action.FileUploadAction;
+import io.hops.cli.action.JobRunAction;
 import io.hops.cli.config.HopsworksAPIConfig;
 
 import java.io.IOException;
@@ -18,13 +15,11 @@ import java.util.logging.Logger;
 
 public class HopsRunJob extends AnAction {
 
-
     @Override
     public void update(AnActionEvent e) {
-        // Set the availability based on whether a project is open
+        // Set the availability if a project is open
         Project project = e.getProject();
         e.getPresentation().setEnabledAndVisible(project != null);
-
     }
 
     @Override
@@ -38,15 +33,20 @@ public class HopsRunJob extends AnAction {
         String destination=util.getDestination(proj);
         String userArgs=util.getUserArgs(proj);
         String localFilePath =e.getDataContext().getData("virtualFile").toString();
+        String hopsProject=null;
 
         try {
-
             HopsworksAPIConfig hopsworksAPIConfig = new HopsworksAPIConfig( hopsworksApiKey, hopsworksUrl, projectName);
             //upload app first?
-            //FileUploadAction action = new FileUploadAction(hopsworksAPIConfig,destination,localFilePath);
-            //action.execute();
+            FileUploadAction action = new FileUploadAction(hopsworksAPIConfig,destination,localFilePath);
+            hopsProject = action.getProjectId(); //check if valid project,throws null pointer
+            action.execute();
             //execute run job
-            JobRunAction runJob=new JobRunAction(hopsworksAPIConfig,jobName,userArgs);
+            io.hops.cli.action.JobRunAction runJob=new io.hops.cli.action.JobRunAction(hopsworksAPIConfig,jobName,userArgs);
+            if(!runJob.getJobExists()){ //check job exists
+                PluginNoticifaction.notifyError(util.INVALID_JOBNAME+ jobName);
+                return;
+            }
             int status=runJob.execute();
 
             if (status == 200 || status == 201) {
@@ -55,18 +55,21 @@ public class HopsRunJob extends AnAction {
             } else PluginNoticifaction.notify(e.getProject()," Job: "+jobName+" | Start Failed");
 
         } catch (IOException ex) {
-            PluginNoticifaction.notify(e.getProject(),ex.getMessage());
+            PluginNoticifaction.notifyError(ex.getMessage());
             Logger.getLogger(JobRunAction.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }  catch (Exception ex) {
+        } catch (NullPointerException nullPointerException) {
+            if (hopsProject == null) {
+                PluginNoticifaction.notifyError(util.INVALID_PROJECT);
+                Logger.getLogger(HopsCreateJob.class.getName()).log(Level.SEVERE, nullPointerException.toString(), nullPointerException);
+            } else {
+                PluginNoticifaction.notifyError(nullPointerException.toString());
+                Logger.getLogger(HopsCreateJob.class.getName()).log(Level.SEVERE, nullPointerException.toString(), nullPointerException);
+            }
+        } catch (Exception ex) {
+            PluginNoticifaction.notify(ex.getMessage());
             Logger.getLogger(HopsRunJob.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
 
     }
 
-    public  Notification notify(Project project, String content) {
-        NotificationGroup NOTIFICATION_GROUP = new NotificationGroup("Hopsworks Plugin", NotificationDisplayType.BALLOON, true);
-        final Notification notification = NOTIFICATION_GROUP.createNotification(content, NotificationType.INFORMATION);
-        notification.notify(project);
-        return notification;
-    }
 }

@@ -3,6 +3,7 @@ package com.logicalclocks;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.uiDesigner.core.GridConstraints;
+
 import net.minidev.json.JSONObject;
 import org.apache.commons.io.FilenameUtils;
 
@@ -20,6 +21,8 @@ public class HopsPluginUtils {
     public static final String PYTHON_MAIN="org.apache.spark.deploy.PythonRunner";
     public static final String PYTHON_CONFIG="pythonJobConfiguration";
     public static final String SPARK_CONFIG="sparkJobConfiguration";
+    public static final String INVALID_PROJECT="Invalid Hopsworks Project Preferences";
+    public static final String INVALID_JOBNAME="Invalid Job Name ";
 
     public static final String PATH_URL = "hops.url";
     public static final String PATH_KEY = "hops.key";
@@ -37,6 +40,11 @@ public class HopsPluginUtils {
     public static final String PATH_SP_EXEC_VC = "hops.executorVC";
     public static final String PATH_SP_DRIVER_VC = "hops.driverVC";
     public static final String PATH_SP_NUM_EXEC = "hops.numberExec";
+    public static final String PATH_IS_SPARK_DYNAMIC = "hops.sparkDynamic";
+    public static final String PATH_SP_INIT_EXEC = "hops.initialExecutor";
+    public static final String PATH_SP_MAX_EXEC = "hops.maxExecutor";
+    public static final String PATH_SP_MIN_EXEC = "hops.minExecutor";
+
     //python
     public static final String PATH_PY_MEMORY = "hops.memory";
     public static final String PATH_PY_CPU_CORE = "hops.cpuCore";
@@ -83,7 +91,9 @@ public class HopsPluginUtils {
     public static final String PYTHON_BTN_LBL= "Python ";
     public static final String FLINK_BTN_LBL= "Flink ";
     public static final String JOB_TYPE_LBL= "Job Type ";
-    public static final String DYNAMIC_SLIDER_LBL= "Spark Dynamic ";
+    public static final String MAX_EXEC_LBL = "Maximum Executors";
+    public static final String INIT_EXEC_LBL = "Initial Executors";
+    public static final String MIN_EXEC_LBL = "Minimum Executors";
 
     public static final String CONST_2048="2048";
     public static final String CONST_4096="4096";
@@ -230,11 +240,34 @@ public class HopsPluginUtils {
         PropertiesComponent properties = PropertiesComponent.getInstance(project);
         return properties.getValue(PATH_FL_NUM_SLOTS);
     }
+
+
+    public static boolean isSparkDynamic(Project project) {
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getBoolean(PATH_IS_SPARK_DYNAMIC);
+    }
+
+    public static String getInitExec(Project project) {
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_SP_INIT_EXEC);
+    }
+
+    public static String getMaxExec(Project project) {
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_SP_MAX_EXEC);
+    }
+
+    public static String getMinExec(Project project) {
+        PropertiesComponent properties = PropertiesComponent.getInstance(project);
+        return properties.getValue(PATH_SP_MIN_EXEC);
+    }
     // job config parameters getters //
 
+
+
     /*
-    UNUSED NOW
-     */
+        UNUSED NOW
+         */
     public String getJobType(String fileName){
         String ext= FilenameUtils.getExtension(fileName);
         Integer c=jobTypeCode.get(ext);
@@ -293,6 +326,19 @@ public class HopsPluginUtils {
 
     }
 
+    public static JPanel createInputPanelJLabel(JPanel panel, LinkedHashMap<JLabel, Component> map) {
+
+        Set<Map.Entry<JLabel, Component>> e2 = map.entrySet();
+        Iterator<Map.Entry<JLabel, Component>> it2 = e2.iterator();
+        int j = 0;
+        while (it2.hasNext()) {
+            Map.Entry<JLabel, Component> pair = it2.next();
+            panel = createField(panel, j, pair.getKey(), pair.getValue());
+            j++;
+        }
+        return panel;
+    }
+
     public static JPanel createField(JPanel container, int row, String label, Component field ){
 
         if (container!=null){
@@ -323,6 +369,38 @@ public class HopsPluginUtils {
         return container;
 
     }
+
+    public static JPanel createField(JPanel container, int row, JLabel label, Component field ){
+
+        if (container!=null){
+            GridConstraints pathLabelConstraint = new GridConstraints();
+            pathLabelConstraint.setRow(row);
+            pathLabelConstraint.setColumn(0);
+            pathLabelConstraint.setFill(GridConstraints.FILL_HORIZONTAL);
+            pathLabelConstraint.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
+
+            pathLabelConstraint.setIndent(5);
+            label.setPreferredSize(new Dimension(190,1) );
+
+            //  lbl.setHorizontalAlignment(JLabel.LEADING);
+            container.add(label, pathLabelConstraint);
+
+            GridConstraints pathFieldConstraint = new GridConstraints();
+            pathFieldConstraint.setHSizePolicy(GridConstraints.SIZEPOLICY_WANT_GROW);
+            pathFieldConstraint.setFill(GridConstraints.FILL_HORIZONTAL);
+            pathFieldConstraint.setAnchor(GridConstraints.ALIGN_LEFT);
+            pathFieldConstraint.setRow(row);
+            pathFieldConstraint.setColumn(1);
+            pathFieldConstraint.setVSizePolicy(GridConstraints.SIZEPOLICY_CAN_SHRINK);
+            //pathFieldConstraint.setIndent(10);
+
+            container.add(field, pathFieldConstraint);
+
+        }
+        return container;
+
+    }
+
 
 
 

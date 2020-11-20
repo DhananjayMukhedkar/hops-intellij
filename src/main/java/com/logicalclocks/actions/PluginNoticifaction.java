@@ -14,13 +14,20 @@ private static final NotificationGroup NOTIFICATION_GROUP = new NotificationGrou
 
 
 public static Notification notify(Project project, String content) {
+
     final Notification notification = NOTIFICATION_GROUP.createNotification(content, NotificationType.INFORMATION);
-    //notification.notify(project);
     Notifications.Bus.notify(notification,project);
     return notification;
 }
 
-    public static Notification notify(String content) {
+public static Notification notifyError(String content) {
+
+    final Notification notification = NOTIFICATION_GROUP.createNotification(content, NotificationType.ERROR);
+    Notifications.Bus.notify(notification,null);
+    return notification;
+}
+
+public static Notification notify(String content) {
         return notify(null, content);
     }
 
