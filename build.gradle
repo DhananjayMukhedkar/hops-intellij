@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.21'
+    id 'org.jetbrains.intellij' version '0.6.4'
 }
 
 group 'com.logicalclocks'
@@ -30,8 +30,13 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2020.2.1'
+    version '2020.2'
 }
+
+//intellij {
+//    version '2020.1'
+//}
+
 patchPluginXml {
     changeNotes """
       First version of Hopsworks IntelliJ/PyCharm Plugin.<br>

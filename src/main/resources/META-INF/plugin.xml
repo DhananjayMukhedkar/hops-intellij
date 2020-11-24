@@ -3,11 +3,14 @@
     <name>Hopsworks</name>
     <vendor email="jim@logicalclocks.com" url="http://www.logicalclocks.com">Logical Clocks AB</vendor>
 
-    <description><![CDATA[
+<!--    <description><![CDATA[
     Hopsworks plugin to deploy and run programs on a cluster.<br>
     <em>most HTML tags may be used</em>
-    ]]></description>
+    ]]></description>-->
 
+    <description>
+    Hopsworks plugin to deploy and run programs on a cluster.
+    </description>
     <!-- please see https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
     <depends>com.intellij.modules.platform</depends>
@@ -20,20 +23,7 @@
      </extensions>
 
     <actions>
-            <action id="com.logicalclocks.actions.FileCopyDialogAction"
-                    class="com.logicalclocks.actions.FileCopyDialogAction"
-                    text="Copy to Hopsworks" description="Hopsworks Copy Action">
-                <override-text place="MainMenu" text="Hopsworks File Copy"/>
-                <keyboard-shortcut first-keystroke="control alt A" second-keystroke="C" keymap="$default"/>
-                <mouse-shortcut keystroke="control button3 doubleClick" keymap="$default"/>
-                <add-to-group group-id="ToolsMenu" anchor="first"/>
-            </action>
-
-    <!--    <action id="hopsRun" class="com.logicalclocks.actions.HopsRunJob" text="Run on Hopsworks">
-            <add-to-group group-id="EditorPopupMenu.Run" anchor="last"/>
-        </action>-->
-
-        <action id="createJob" class="com.logicalclocks.actions.HopsCreateJob" text="Create Hopsworks Job">
+       <action id="createJob" class="com.logicalclocks.actions.HopsCreateJob" text="Create Hopsworks Job">
             <add-to-group group-id="ProjectViewPopupMenuRunGroup" anchor="first" />
         </action>
         <action id="jobRun" class="com.logicalclocks.actions.HopsRunJob" text="Run Hopsworks Job">

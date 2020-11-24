@@ -154,6 +154,7 @@ public class HopsSettingsConfigurable implements Configurable {
         storedMainClass=properties.getValue(HopsPluginUtils.PATH_MAINCLASS);
         storedExecId=properties.getValue(HopsPluginUtils.PATH_EXECID);
         storedJobType =properties.getValue(PATH_JOBTYPE);
+        if(storedJobType==null) storedJobType=SPARK;
         //spark configs
         stored_spDriverMem=properties.getValue(PATH_SP_DRVERMEM);
         stored_spNumExec=properties.getValue(PATH_SP_NUM_EXEC);
